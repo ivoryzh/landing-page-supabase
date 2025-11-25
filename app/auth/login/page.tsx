@@ -21,11 +21,11 @@ export default function LoginPage() {
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return setError(error.message);
-      router.push("/app");
+      router.push("/");
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) return setError(error.message);
-      router.push("/app");
+      router.push("/");
     }
   }
 
