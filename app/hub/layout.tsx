@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { EnvVarWarning } from "@/components/env-var-warning";
 
-export default function ProtectedLayout({
+export default function HubLayout({
   children,
 }: {
   children: React.ReactNode;

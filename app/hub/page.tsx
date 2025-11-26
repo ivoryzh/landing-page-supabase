@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { InfoIcon } from "lucide-react";
-import IvoryOSHub from "@/app/protected/ivoryos/ivoryos-hub"; // Import your component
+import IvoryOSHub from "@/app/hub/ivoryos/ivoryos-hub"; // Import your component
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
