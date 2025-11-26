@@ -192,11 +192,9 @@ if __name__ == "__main__":
       <div className="bg-muted/50 border-b border-border px-6 py-4">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Cpu className="w-6 h-6 text-white" />
-            </div>
+
             <div>
-              <h1 className="text-xl font-bold text-foreground">IvoryOS Hub</h1>
+              <h1 className="text-xl font-bold text-foreground">Community Hub</h1>
               <p className="text-sm text-muted-foreground">
                 {userEmail ? `Logged in as ${userEmail}` : 'No-code laboratory automation'}
               </p>
@@ -500,7 +498,7 @@ if __name__ == "__main__":
               <div className="flex flex-col gap-4">
                 <button
                   onClick={handleDownload}
-                  className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:shadow-md"
+                  className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Download className="w-5 h-5" />
                   Download Files

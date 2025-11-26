@@ -63,6 +63,12 @@ ivoryos.run(__name__)`;
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                         Write your lab automation once. IvoryOS turns it into an experiment platform in one line.
                     </p>
+                    <div className="pt-4 flex justify-center">
+                        <div className="bg-black rounded-md border border-white/10 px-4 py-2 font-mono text-sm flex items-center gap-2 shadow-lg">
+                            <span className="text-green-500">$</span>
+                            <span className="text-gray-200">ivoryos.run(__name__)</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
@@ -137,13 +143,6 @@ ivoryos.run(__name__)`;
                 </div>
 
                 <div className="flex flex-col items-center gap-4 mt-8">
-                    <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Launch with one line</p>
-                    <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200" />
-                        <code className="relative block bg-background border border-border px-8 py-4 rounded-lg text-xl md:text-2xl font-mono font-bold text-foreground shadow-xl">
-                            ivoryos.run(__name__)
-                        </code>
-                    </div>
                 </div>
             </div>
         </section>
