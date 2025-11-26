@@ -19,7 +19,6 @@ export default function IvoryOSHub({ userEmail }: { userEmail?: string }) {
   const [step, setStep] = useState('hardware');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
-  const [downloadType, setDownloadType] = useState('bash');
   const [showMainPreview, setShowMainPreview] = useState(false);
   const [copiedMain, setCopiedMain] = useState(false);
 
@@ -155,19 +154,17 @@ if __name__ == "__main__":
   };
 
   const handleDownload = () => {
-    if (downloadType === 'bash') {
-      const { bash, python, bat } = generateBashScript();
-      const zip = new JSZip();
-      zip.file('ivoryos-setup.ps1', bash);
-      zip.file('main.py', python);
-      zip.file('run.bat', bat);
+    const { bash, python, bat } = generateBashScript();
+    const zip = new JSZip();
+    zip.file('ivoryos-setup.ps1', bash);
+    zip.file('main.py', python);
+    zip.file('run.bat', bat);
 
-      zip.generateAsync({ type: 'blob' })
-        .then((content) => {
-          saveAs(content, 'ivoryos-scripts.zip');
-        })
-        .catch((err) => console.error('Failed to generate ZIP:', err));
-    }
+    zip.generateAsync({ type: 'blob' })
+      .then((content) => {
+        saveAs(content, 'ivoryos-scripts.zip');
+      })
+      .catch((err) => console.error('Failed to generate ZIP:', err));
   };
 
   const handleCopyMain = () => {
@@ -190,17 +187,17 @@ if __name__ == "__main__":
 
   // --- Render ---
   return (
-    <div className="w-full bg-white rounded-xl border shadow-sm overflow-hidden">
+    <div className="w-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
       {/* Header Bar */}
-      <div className="bg-gray-50 border-b px-6 py-4">
+      <div className="bg-muted/50 border-b border-border px-6 py-4">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
               <Cpu className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">IvoryOS Hub</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-xl font-bold text-foreground">IvoryOS Hub</h1>
+              <p className="text-sm text-muted-foreground">
                 {userEmail ? `Logged in as ${userEmail}` : 'No-code laboratory automation'}
               </p>
             </div>
@@ -217,14 +214,13 @@ if __name__ == "__main__":
               <React.Fragment key={s.id}>
                 <button
                   onClick={() => setStep(s.id)}
-                  className={`flex items-center gap-2 px-3 py-1 rounded-full whitespace-nowrap transition-colors ${
-                    step === s.id ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                  className={`flex items-center gap-2 px-3 py-1 rounded-full whitespace-nowrap transition-colors ${step === s.id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
+                    }`}
                 >
                   <s.icon className="w-4 h-4" />
                   {s.label}
                 </button>
-                {idx < arr.length - 1 && <ChevronRight className="w-4 h-4 text-gray-300" />}
+                {idx < arr.length - 1 && <ChevronRight className="w-4 h-4 text-muted-foreground/30" />}
               </React.Fragment>
             ))}
           </div>
@@ -236,36 +232,36 @@ if __name__ == "__main__":
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
               <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search hardware..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-input bg-background rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-2">
                 {filteredHardware.map(hw => (
-                  <div key={hw.id} className="p-4 border rounded-xl hover:border-blue-300 hover:shadow transition-all bg-white">
+                  <div key={hw.id} className="p-4 border border-border rounded-xl hover:border-primary/50 hover:shadow-md transition-all bg-card">
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-2xl">{hw.icon}</span>
                       <span className={`text-xs px-2 py-1 rounded-full ${getDifficultyColor(hw.difficulty)}`}>
                         {hw.difficulty}
                       </span>
                     </div>
-                    <h3 className="font-bold text-gray-900 text-sm">{hw.name}</h3>
-                    <p className="text-xs text-gray-500 mb-2">{hw.vendor}</p>
+                    <h3 className="font-bold text-foreground text-sm">{hw.name}</h3>
+                    <p className="text-xs text-muted-foreground mb-2">{hw.vendor}</p>
                     <div className="flex justify-between items-center mt-2">
                       <div className="flex gap-1">
                         {hw.connection.map((c: string) => (
-                          <span key={c} className="text-[10px] uppercase bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                          <span key={c} className="text-[10px] uppercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                             {c}
                           </span>
                         ))}
                       </div>
-                      <button onClick={() => addHardware(hw)} className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1">
+                      <button onClick={() => addHardware(hw)} className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1">
                         <Plus className="w-4 h-4" /> Add
                       </button>
                     </div>
@@ -274,25 +270,25 @@ if __name__ == "__main__":
               </div>
             </div>
 
-            <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 h-fit">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-blue-600" />
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-primary" />
                 Selected ({selectedHardware.length})
               </h3>
 
               <div className="space-y-2 max-h-[500px] overflow-y-auto mb-4">
                 {selectedHardware.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-4">No devices added yet</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">No devices added yet</p>
                 ) : (
                   selectedHardware.map(hw => (
-                    <div key={hw.instanceId} className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm flex justify-between items-start">
-                       <div>
-                          <p className="text-sm font-medium text-gray-900">{connections[hw.instanceId]?.nickname}</p>
-                          <p className="text-xs text-gray-500">{hw.name}</p>
-                       </div>
-                       <button onClick={() => removeHardware(hw.instanceId)} className="text-red-400 hover:text-red-600">
-                         <Trash2 className="w-4 h-4" />
-                       </button>
+                    <div key={hw.instanceId} className="p-3 bg-card rounded-lg border border-border shadow-sm flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{connections[hw.instanceId]?.nickname}</p>
+                        <p className="text-xs text-muted-foreground">{hw.name}</p>
+                      </div>
+                      <button onClick={() => removeHardware(hw.instanceId)} className="text-destructive hover:text-destructive/80">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   ))
                 )}
@@ -301,7 +297,7 @@ if __name__ == "__main__":
               <button
                 onClick={() => selectedHardware.length > 0 && setStep('optimizers')}
                 disabled={selectedHardware.length === 0}
-                className="w-full py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next Step
               </button>
@@ -310,170 +306,210 @@ if __name__ == "__main__":
         )}
 
         {/* Optimizers Step */}
+        {/* Optimizers Step */}
         {step === 'optimizers' && (
-          <div className="max-w-4xl mx-auto">
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-               {optimizerOptions.map(opt => (
-                 <div
-                   key={opt.id}
-                   onClick={() => setSelectedOptimizers(prev =>
-                     prev.includes(opt.id) ? prev.filter(id => id !== opt.id) : [...prev, opt.id]
-                   )}
-                   className={`p-5 border-2 rounded-xl cursor-pointer transition-all ${
-                     selectedOptimizers.includes(opt.id)
-                       ? 'border-purple-500 bg-purple-50'
-                       : 'border-gray-200 hover:border-purple-300'
-                   }`}
-                 >
-                   <div className="flex justify-between mb-2">
-                     <span className="text-3xl">{opt.icon}</span>
-                     {selectedOptimizers.includes(opt.id) && <CheckCircle className="w-5 h-5 text-purple-600" />}
-                   </div>
-                   <h3 className="font-bold text-gray-900">{opt.name}</h3>
-                   <p className="text-xs text-purple-600 mb-2">{opt.source}</p>
-                   <p className="text-sm text-gray-600">{opt.description}</p>
-                 </div>
-               ))}
-             </div>
-             <div className="flex justify-between">
-               <button onClick={() => setStep('hardware')} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Back</button>
-               <button onClick={() => setStep('connect')} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Next</button>
-             </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-2">
+                {optimizerOptions.map(opt => (
+                  <div
+                    key={opt.id}
+                    className={`p-4 border rounded-xl transition-all bg-card ${selectedOptimizers.includes(opt.id)
+                      ? 'border-primary shadow-md'
+                      : 'border-border hover:border-primary/50 hover:shadow-md'
+                      }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-2xl">{opt.icon}</span>
+                      <button
+                        onClick={() => setSelectedOptimizers(prev =>
+                          prev.includes(opt.id) ? prev.filter(id => id !== opt.id) : [...prev, opt.id]
+                        )}
+                        className={`text-sm font-medium flex items-center gap-1 ${selectedOptimizers.includes(opt.id) ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                      >
+                        {selectedOptimizers.includes(opt.id) ? <CheckCircle className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                        {selectedOptimizers.includes(opt.id) ? 'Added' : 'Add'}
+                      </button>
+                    </div>
+                    <h3 className="font-bold text-foreground text-sm">{opt.name}</h3>
+                    <p className="text-xs text-primary mb-2">{opt.source}</p>
+                    <p className="text-xs text-muted-foreground">{opt.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sidebar for Selected Optimizers */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-primary" />
+                Selected ({selectedOptimizers.length})
+              </h3>
+
+              <div className="space-y-2 max-h-[500px] overflow-y-auto mb-4">
+                {selectedOptimizers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">No optimizers added yet</p>
+                ) : (
+                  selectedOptimizers.map(optId => {
+                    const opt = optimizerOptions.find(o => o.id === optId);
+                    if (!opt) return null;
+                    return (
+                      <div key={opt.id} className="p-3 bg-card rounded-lg border border-border shadow-sm flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{opt.name}</p>
+                          <p className="text-xs text-muted-foreground">{opt.source}</p>
+                        </div>
+                        <button onClick={() => setSelectedOptimizers(prev => prev.filter(id => id !== opt.id))} className="text-destructive hover:text-destructive/80">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button onClick={() => setStep('connect')} className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
+                  Next Step
+                </button>
+                <button onClick={() => setStep('hardware')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
+                  Back to Hardware
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Connections Step */}
         {step === 'connect' && (
-          <div className="max-w-3xl mx-auto space-y-6">
-            {selectedHardware.map(hw => (
-              <div key={hw.instanceId} className="border rounded-xl p-6 bg-white shadow-sm">
-                <div className="flex items-center gap-3 mb-4 border-b pb-4">
-                  <span className="text-2xl">{hw.icon}</span>
-                  <input
-                    type="text"
-                    value={connections[hw.instanceId]?.nickname || ''}
-                    onChange={(e) => updateConnection(hw.instanceId, 'nickname', e.target.value)}
-                    className="font-bold text-gray-900 text-lg border-b-2 border-transparent hover:border-blue-300 focus:border-blue-500 focus:outline-none flex-1"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 block mb-2">Type</label>
-                    <div className="flex gap-2">
-                      {hw.connection.map((conn: string) => (
-                         <button
-                           key={conn}
-                           onClick={() => updateConnection(hw.instanceId, 'type', conn)}
-                           className={`flex-1 py-1.5 px-3 rounded text-sm border ${
-                             connections[hw.instanceId]?.type === conn 
-                               ? 'bg-blue-50 border-blue-500 text-blue-700' 
-                               : 'bg-white border-gray-300'
-                           }`}
-                         >
-                           {conn.toUpperCase()}
-                         </button>
-                      ))}
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-4">
+              {selectedHardware.map(hw => (
+                <div key={hw.instanceId} className="border border-border rounded-xl p-6 bg-card shadow-sm hover:border-primary/50 transition-colors">
+                  <div className="flex items-center gap-3 mb-4 border-b border-border pb-4">
+                    <span className="text-2xl">{hw.icon}</span>
+                    <input
+                      type="text"
+                      value={connections[hw.instanceId]?.nickname || ''}
+                      onChange={(e) => updateConnection(hw.instanceId, 'nickname', e.target.value)}
+                      className="font-bold text-foreground text-lg bg-transparent border-b-2 border-transparent hover:border-primary/50 focus:border-primary focus:outline-none flex-1"
+                    />
                   </div>
 
-                  {connections[hw.instanceId]?.type === 'usb' ? (
-                     <div>
-                       <label className="text-sm font-medium text-gray-700 block mb-2">Port</label>
-                       <input
-                         type="text"
-                         placeholder="/dev/ttyUSB0"
-                         className="w-full border rounded px-3 py-1.5 text-sm"
-                         value={connections[hw.instanceId]?.port || ''}
-                         onChange={(e) => updateConnection(hw.instanceId, 'port', e.target.value)}
-                       />
-                     </div>
-                  ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                       <label className="text-sm font-medium text-gray-700 block mb-2">IP Address</label>
-                       <input
-                         type="text"
-                         placeholder="192.168.1.100"
-                         className="w-full border rounded px-3 py-1.5 text-sm"
-                         value={connections[hw.instanceId]?.ip || ''}
-                         onChange={(e) => updateConnection(hw.instanceId, 'ip', e.target.value)}
-                       />
+                      <label className="text-sm font-medium text-muted-foreground block mb-2">Type</label>
+                      <div className="flex gap-2">
+                        {hw.connection.map((conn: string) => (
+                          <button
+                            key={conn}
+                            onClick={() => updateConnection(hw.instanceId, 'type', conn)}
+                            className={`flex-1 py-1.5 px-3 rounded text-sm border transition-colors ${connections[hw.instanceId]?.type === conn
+                              ? 'bg-primary/10 border-primary text-primary'
+                              : 'bg-background border-input text-muted-foreground hover:bg-accent'
+                              }`}
+                          >
+                            {conn.toUpperCase()}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  )}
+
+                    {connections[hw.instanceId]?.type === 'usb' ? (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground block mb-2">Port</label>
+                        <input
+                          type="text"
+                          placeholder="/dev/ttyUSB0"
+                          className="w-full border border-input bg-background rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+                          value={connections[hw.instanceId]?.port || ''}
+                          onChange={(e) => updateConnection(hw.instanceId, 'port', e.target.value)}
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground block mb-2">IP Address</label>
+                        <input
+                          type="text"
+                          placeholder="192.168.1.100"
+                          className="w-full border border-input bg-background rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+                          value={connections[hw.instanceId]?.ip || ''}
+                          onChange={(e) => updateConnection(hw.instanceId, 'ip', e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Sidebar for Actions */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
+              <h3 className="font-bold text-foreground mb-3">Actions</h3>
+              <div className="flex flex-col gap-2">
+                <button onClick={() => setStep('launch')} className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
+                  Next Step
+                </button>
+                <button onClick={() => setStep('optimizers')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
+                  Back to Optimizers
+                </button>
               </div>
-            ))}
-             <div className="flex justify-between pt-4">
-               <button onClick={() => setStep('optimizers')} className="px-6 py-2 border rounded-lg hover:bg-gray-50">Back</button>
-               <button onClick={() => setStep('launch')} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Next</button>
-             </div>
+            </div>
           </div>
         )}
 
         {/* Launch Step */}
         {step === 'launch' && (
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-gray-50 border rounded-xl p-6 mb-6">
-              <h3 className="font-bold text-gray-900 mb-4">Launch Configuration</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="bg-card border border-border rounded-xl p-6 mb-6 shadow-sm">
+                <h3 className="font-bold text-foreground mb-4">Launch Configuration</h3>
 
-              <div className="flex gap-4 mb-6">
-                 <button
-                   onClick={() => setDownloadType('bash')}
-                   className={`flex-1 p-4 border-2 rounded-lg flex flex-col items-center gap-2 ${
-                     downloadType === 'bash' ? 'border-blue-500 bg-white' : 'border-gray-200'
-                   }`}
-                 >
-                   <Code className="w-6 h-6 text-blue-600" />
-                   <span className="font-medium">Bash/Powershell</span>
-                 </button>
-                 <button
-                   onClick={() => setDownloadType('exe')}
-                   className={`flex-1 p-4 border-2 rounded-lg flex flex-col items-center gap-2 ${
-                     downloadType === 'exe' ? 'border-blue-500 bg-white' : 'border-gray-200'
-                   }`}
-                 >
-                   <Download className="w-6 h-6 text-green-600" />
-                   <span className="font-medium">Executable (.exe)</span>
-                 </button>
-              </div>
+                <div className="flex gap-4 mb-6">
+                  <button
+                    className="flex-1 p-4 border-2 border-primary bg-primary/5 rounded-lg flex flex-col items-center gap-2 transition-colors cursor-default"
+                  >
+                    <Code className="w-6 h-6 text-primary" />
+                    <span className="font-medium text-foreground">Bash/Powershell</span>
+                  </button>
+                </div>
 
-              {downloadType === 'bash' && (
                 <div className="space-y-4">
-                  <div className="bg-white border rounded-lg p-3">
+                  <div className="bg-muted/30 border border-border rounded-lg p-3">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-bold text-gray-700">Preview: main.py</span>
+                      <span className="text-sm font-bold text-muted-foreground">Preview: main.py</span>
                       <div className="flex gap-2">
-                        <button onClick={handleCopyMain} className="text-xs px-2 py-1 border rounded hover:bg-gray-50">
+                        <button onClick={handleCopyMain} className="text-xs px-2 py-1 border border-input rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors">
                           {copiedMain ? 'Copied!' : 'Copy Code'}
                         </button>
                       </div>
                     </div>
-                    <div className="max-h-64 overflow-y-auto text-xs rounded border">
-                       <SyntaxHighlighter language="python" style={oneDark} customStyle={{ margin: 0 }}>
-                         {generateBashScript().python}
-                       </SyntaxHighlighter>
+                    <div className="max-h-64 overflow-y-auto text-xs rounded border border-border">
+                      <SyntaxHighlighter language="python" style={oneDark} customStyle={{ margin: 0 }}>
+                        {generateBashScript().python}
+                      </SyntaxHighlighter>
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            <button
-               onClick={handleDownload}
-               disabled={downloadType === 'exe'}
-               className={`w-full py-4 rounded-lg font-bold flex items-center justify-center gap-2 text-lg shadow-lg ${
-                 downloadType === 'exe' 
-                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                   : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700'
-               }`}
-             >
-               <Download className="w-6 h-6" />
-               {downloadType === 'exe' ? 'Executable Build (Coming Soon)' : 'Download Project Files'}
-             </button>
-
-             <div className="mt-8 text-center">
-               <button onClick={() => setStep('connect')} className="text-gray-500 hover:text-gray-700">Back to Settings</button>
-             </div>
+            {/* Sidebar for Actions */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
+              <h3 className="font-bold text-foreground mb-3">Download & Run</h3>
+              <div className="flex flex-col gap-4">
+                <button
+                  onClick={handleDownload}
+                  className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:shadow-md"
+                >
+                  <Download className="w-5 h-5" />
+                  Download Files
+                </button>
+                <button onClick={() => setStep('connect')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
+                  Back to Connect
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
