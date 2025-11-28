@@ -1,6 +1,6 @@
 export function Community() {
     return (
-        <section id="community" className="w-full py-16 md:py-24 bg-muted/30">
+        <section id="community" className="w-full py-16 md:py-24 bg-muted/30 border-y border-border/40">
             <div className="max-w-4xl mx-auto px-4 text-center space-y-8">
                 <h2 className="text-3xl font-bold">Community</h2>
                 <p className="text-xl text-muted-foreground">

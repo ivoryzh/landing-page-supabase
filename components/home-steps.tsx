@@ -12,12 +12,12 @@ export function HomeSteps() {
             </h3>
             <div className="flex-1 flex items-center justify-center min-h-[280px] bg-muted/30 rounded-lg p-4 relative overflow-hidden group">
                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
-               <div className="relative w-full h-full min-h-[240px] shadow-lg rounded-lg overflow-hidden border border-border/50">
+               <div className="relative w-full h-full min-h-[240px] rounded-lg overflow-hidden border border-border/50">
                   <Image
                      src="/assets/steps/discover_modules.png"
                      alt="Discover Modules"
                      fill
-                     className="object-contain group-hover:scale-105 transition-transform duration-500"
+                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                </div>
             </div>

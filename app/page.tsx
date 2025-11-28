@@ -10,10 +10,12 @@ import { Personas } from "@/components/landing/personas";
 import { Community } from "@/components/landing/community";
 import { Partners } from "@/components/landing/partners";
 
+// import { FAQ } from "@/components/landing/faq";
+
 export default function Home() {
   return (
     <div className="flex-1 w-full flex flex-col gap-20 items-center">
-      <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 sticky top-0 bg-slate-100/80 dark:bg-background/80 backdrop-blur-md z-50">
+      <nav className="w-full flex justify-center border-b border-b-foreground/20 h-16 sticky top-0 bg-slate-100/80 dark:bg-background/80 backdrop-blur-md z-50 shadow-sm">
         <div className="w-full max-w-7xl flex justify-between items-center p-3 px-5 text-sm">
           <div className="flex gap-5 items-center font-semibold">
             <Link href="/" className="flex items-center gap-2">
@@ -26,6 +28,7 @@ export default function Home() {
             <Link href="#developer" className="text-muted-foreground hover:text-foreground transition-colors">Solution</Link>
             <Link href="#personas" className="text-muted-foreground hover:text-foreground transition-colors">Why IvoryOS</Link>
             <Link href="#community" className="text-muted-foreground hover:text-foreground transition-colors">Community</Link>
+            {/* <Link href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</Link> */}
           </div>
           <div className="flex gap-4 items-center">
             <ThemeSwitcher />
@@ -41,6 +44,7 @@ export default function Home() {
         <DeveloperDemo />
         <Personas />
         <Community />
+        {/* <FAQ /> */}
         <Partners />
       </main>
 

@@ -61,11 +61,7 @@ export function Personas() {
 
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">The Challenge</h4>
-                                    <p className="text-sm leading-relaxed">{persona.problem}</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <h4 className={`font-medium text-sm uppercase tracking-wider ${persona.color}`}>The Solution</h4>
+                                    {/* <h4 className={`font-medium text-sm uppercase tracking-wider ${persona.color}`}>Benefit</h4> */}
                                     <p className="text-sm leading-relaxed font-medium">{persona.solution}</p>
                                 </div>
                             </div>

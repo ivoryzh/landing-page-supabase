@@ -56,7 +56,7 @@ robot = MySelfDrivingLab()
 ivoryos.run(__name__)`;
 
     return (
-        <section id="developer" className="w-full py-16 bg-muted/30">
+        <section id="developer" className="w-full py-16 bg-muted/30 border-y border-border/40">
             <div className="max-w-7xl mx-auto px-4 flex flex-col gap-12">
                 <div className="text-center space-y-4">
                     <h2 className="text-3xl font-bold">Powered by IvoryOS</h2>
@@ -65,7 +65,7 @@ ivoryos.run(__name__)`;
                     </p>
                     <div className="pt-4 flex justify-center">
                         <div className="bg-black rounded-md border border-white/10 px-4 py-2 font-mono text-sm flex items-center gap-2 shadow-lg">
-                            <span className="text-green-500">$</span>
+                            <span className="text-blue-400">&gt;&gt;&gt;</span>
                             <span className="text-gray-200">ivoryos.run(__name__)</span>
                         </div>
                     </div>
