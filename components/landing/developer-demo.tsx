@@ -142,8 +142,8 @@ ivoryos.run(__name__)`;
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-4 mt-8">
-                </div>
+                {/* <div className="flex flex-col items-center gap-4 mt-8"> */}
+                {/* </div> */}
             </div>
         </section>
     );
