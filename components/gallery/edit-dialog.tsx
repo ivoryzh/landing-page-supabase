@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import {
     Dialog,
@@ -14,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, Pencil } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { type Database } from "@/utils/supabase/types";
 
 type GalleryPost = Database["public"]["Tables"]["gallery_posts"]["Row"];
@@ -30,7 +31,9 @@ export function EditDialog({ post, onUpdateSuccess, open, onOpenChange }: EditDi
     const [title, setTitle] = useState(post.title);
     const [description, setDescription] = useState(post.description || "");
     const [loading, setLoading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const supabase = createClient();
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,6 +55,37 @@ export function EditDialog({ post, onUpdateSuccess, open, onOpenChange }: EditDi
             toast.error("Failed to update post.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!confirm("Are you sure you want to delete this post? This action cannot be undone.")) return;
+        setIsDeleting(true);
+
+        try {
+            // First delete associated likes to avoid foreign key constraint violations
+            await supabase.from("likes").delete().eq("post_id", post.id);
+
+            const { data, error } = await supabase
+                .from("gallery_posts")
+                .delete()
+                .eq("id", post.id)
+                .select();
+
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                throw new Error("Post could not be deleted. You might not have permission.");
+            }
+
+            toast.success("Post deleted successfully");
+            onOpenChange(false);
+            onUpdateSuccess(); // This might need to trigger a refresh of the grid
+            router.refresh();
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            toast.error("Failed to delete post");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -82,17 +116,29 @@ export function EditDialog({ post, onUpdateSuccess, open, onOpenChange }: EditDi
                             className="h-32"
                         />
                     </div>
-                    <div className="flex justify-end gap-2">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
+                    <div className="flex justify-between items-center pt-4 border-t">
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDelete}
+                            disabled={loading || isDeleting}
+                        >
+                            {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                            Delete Post
                         </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Save Changes
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" disabled={loading || isDeleting}>
+                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Save Changes
+                            </Button>
+                        </div>
                     </div>
                 </form>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 }

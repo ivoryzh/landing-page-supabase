@@ -18,11 +18,12 @@ import { User } from "@supabase/supabase-js";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 interface ProfileSidebarProps {
-    user: User;
+    user: User | null;
     profile: Profile;
+    readOnly?: boolean;
 }
 
-export function ProfileSidebar({ user, profile }: ProfileSidebarProps) {
+export function ProfileSidebar({ user, profile, readOnly = false }: ProfileSidebarProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -32,30 +33,34 @@ export function ProfileSidebar({ user, profile }: ProfileSidebarProps) {
                     <AvatarImage src={profile.avatar_url || undefined} />
                     <AvatarFallback className="text-4xl">
                         {profile.full_name?.slice(0, 2)?.toUpperCase() ||
-                            user.email?.slice(0, 2).toUpperCase()}
+                            profile.username?.slice(0, 2).toUpperCase() || "??"}
                     </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
                     <h2 className="text-xl font-bold">
                         {profile.full_name || "Anonymous User"}
                     </h2>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    {!readOnly && user && (
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                    )}
                 </div>
 
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full gap-2">
-                            <Pencil className="h-4 w-4" />
-                            Edit Profile
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Edit Profile</DialogTitle>
-                        </DialogHeader>
-                        <ProfileForm user={user} profile={profile} onSuccess={() => setIsOpen(false)} />
-                    </DialogContent>
-                </Dialog>
+                {!readOnly && user && (
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className="w-full gap-2">
+                                <Pencil className="h-4 w-4" />
+                                Edit Profile
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Edit Profile</DialogTitle>
+                            </DialogHeader>
+                            <ProfileForm user={user} profile={profile} onSuccess={() => setIsOpen(false)} />
+                        </DialogContent>
+                    </Dialog>
+                )}
             </div>
 
             {profile.lab_info && (

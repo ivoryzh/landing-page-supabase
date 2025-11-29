@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { type Database } from "@/utils/supabase/types";
 import {
     Dialog,
@@ -12,8 +13,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 import { EditDialog } from "./edit-dialog";
+
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Heart } from "lucide-react";
+import { Pencil, Heart } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -80,6 +82,20 @@ export function DetailDialog({
         setLoadingLike(true);
 
         try {
+            // Check if user has a profile
+            const { data: profile, error: profileError } = await supabase
+                .from("profiles")
+                .select("id")
+                .eq("id", user.id)
+                .single();
+
+            if (profileError || !profile) {
+                toast.error("Please create a profile to like posts.");
+                // Optional: Redirect to profile page or open profile dialog
+                // router.push("/hub/profile"); 
+                return;
+            }
+
             if (liked) {
                 // Unlike
                 const { error } = await supabase
@@ -101,33 +117,15 @@ export function DetailDialog({
                 setLiked(true);
                 setLikeCount((prev) => prev + 1);
             }
-        } catch (error) {
-            console.error("Error toggling like:", error);
+        } catch (error: any) {
+            console.error("Error toggling like:", error.message || error);
             toast.error("Failed to update like.");
         } finally {
             setLoadingLike(false);
         }
     };
 
-    const handleDelete = async () => {
-        if (!post || !confirm("Are you sure you want to delete this post?")) return;
 
-        try {
-            const { error } = await supabase
-                .from("gallery_posts")
-                .delete()
-                .eq("id", post.id);
-
-            if (error) throw error;
-
-            toast.success("Post deleted successfully.");
-            onOpenChange(false);
-            onUpdate();
-        } catch (error) {
-            console.error("Error deleting post:", error);
-            toast.error("Failed to delete post.");
-        }
-    };
 
     if (!post) return null;
 
@@ -136,57 +134,59 @@ export function DetailDialog({
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="max-w-5xl w-[95vw] h-[90vh] p-0 overflow-hidden flex flex-col border-none bg-background/95 backdrop-blur-sm">
-                    {/* Image Section */}
-                    <div className="relative w-full h-[65%] bg-black/90 flex items-center justify-center p-4">
-                        <Image
-                            src={post.image_url}
-                            alt={post.title}
-                            fill
-                            className="object-contain"
-                            priority
-                        />
-                    </div>
+                <DialogContent className="max-w-[95vw] sm:max-w-[75vw] w-[95vw] h-[85vh] p-0 overflow-hidden border-none bg-background/95 backdrop-blur-sm">
+                    <div className="flex flex-col md:flex-row h-full">
+                        {/* Image Section */}
+                        <div className="relative w-full md:w-[50%] h-[40%] md:h-full bg-black/90 flex items-center justify-center p-4">
+                            <Image
+                                src={post.image_url}
+                                alt={post.title}
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
 
-                    {/* Content Section */}
-                    <div className="w-full h-[35%] flex flex-col bg-background border-t">
-                        <div className="p-6 border-b flex justify-between items-start">
-                            <div>
-                                <DialogHeader>
-                                    <DialogTitle className="text-2xl font-bold leading-tight mb-2">
-                                        {post.title}
-                                    </DialogTitle>
-                                    <div className="flex items-center gap-3 mt-4">
-                                        <Avatar className="h-10 w-10 border">
-                                            <AvatarImage
-                                                src={post.profiles?.avatar_url || undefined}
-                                            />
-                                            <AvatarFallback>
-                                                {post.profiles?.full_name?.slice(0, 2)?.toUpperCase() ||
-                                                    "??"}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-semibold">
-                                                {post.profiles?.full_name || "Anonymous"}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {new Date(post.created_at).toLocaleDateString(
-                                                    undefined,
-                                                    {
-                                                        year: "numeric",
-                                                        month: "long",
-                                                        day: "numeric",
-                                                    }
-                                                )}
-                                            </span>
+                        {/* Content Section */}
+                        <div className="w-full md:w-[50%] h-[60%] md:h-full flex flex-col bg-background border-l">
+                            <div className="p-6 border-b flex justify-between items-start shrink-0">
+                                <div>
+                                    <DialogHeader>
+                                        <DialogTitle className="text-2xl font-bold leading-tight mb-2">
+                                            {post.title}
+                                        </DialogTitle>
+                                        <div className="flex items-center gap-3 mt-4">
+                                            <Link href={`/hub/profile/${post.profiles?.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                                                <Avatar className="h-10 w-10 border">
+                                                    <AvatarImage
+                                                        src={post.profiles?.avatar_url || undefined}
+                                                    />
+                                                    <AvatarFallback>
+                                                        {post.profiles?.full_name?.slice(0, 2)?.toUpperCase() ||
+                                                            "??"}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-semibold hover:underline">
+                                                        {post.profiles?.full_name || "Anonymous"}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {new Date(post.created_at).toLocaleDateString(
+                                                            undefined,
+                                                            {
+                                                                year: "numeric",
+                                                                month: "long",
+                                                                day: "numeric",
+                                                            }
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            </Link>
                                         </div>
-                                    </div>
-                                </DialogHeader>
-                            </div>
-                            <div className="flex gap-1">
-                                {isOwner && (
-                                    <>
+                                    </DialogHeader>
+                                </div>
+                                <div className="flex gap-1">
+                                    {isOwner && (
                                         <Button
                                             variant="ghost"
                                             size="icon"
@@ -195,41 +195,33 @@ export function DetailDialog({
                                         >
                                             <Pencil className="h-4 w-4" />
                                         </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={handleDelete}
-                                            className="text-destructive hover:text-destructive/80"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
 
-                        <ScrollArea className="flex-1 p-6">
-                            <div className="prose dark:prose-invert max-w-none">
-                                <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90">
-                                    {post.description}
-                                </p>
+                            <ScrollArea className="flex-1 p-6">
+                                <div className="prose dark:prose-invert max-w-none">
+                                    <p className="text-base leading-relaxed whitespace-pre-wrap text-foreground/90">
+                                        {post.description}
+                                    </p>
+                                </div>
+                            </ScrollArea>
+
+                            <div className="p-4 border-t bg-muted/10 flex items-center justify-between shrink-0">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                        "gap-2 hover:bg-transparent",
+                                        liked ? "text-red-500 hover:text-red-600" : "text-muted-foreground hover:text-foreground"
+                                    )}
+                                    onClick={handleLike}
+                                    disabled={loadingLike}
+                                >
+                                    <Heart className={cn("h-5 w-5", liked && "fill-current")} />
+                                    <span className="text-sm font-medium">{likeCount} Likes</span>
+                                </Button>
                             </div>
-                        </ScrollArea>
-
-                        <div className="p-4 border-t bg-muted/10 flex items-center justify-between">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className={cn(
-                                    "gap-2 hover:bg-transparent",
-                                    liked ? "text-red-500 hover:text-red-600" : "text-muted-foreground hover:text-foreground"
-                                )}
-                                onClick={handleLike}
-                                disabled={loadingLike}
-                            >
-                                <Heart className={cn("h-5 w-5", liked && "fill-current")} />
-                                <span className="text-sm font-medium">{likeCount} Likes</span>
-                            </Button>
                         </div>
                     </div>
                 </DialogContent>

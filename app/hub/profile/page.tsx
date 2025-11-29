@@ -66,11 +66,37 @@ export default async function ProfilePage() {
         user_has_liked: likedPostIds.has(post.id)
     })) || [];
 
+    // Fetch user's modules
+    const { data: modules } = await supabase
+        .from("modules")
+        .select(`
+            *,
+            devices (*),
+            profiles:contributor_id (*)
+        `)
+        .eq("contributor_id", user.id)
+        .order("created_at", { ascending: false });
+
+    // Fetch user's templates
+    const { data: templates } = await supabase
+        .from("templates")
+        .select(`
+            *,
+            profiles:contributor_id (*)
+        `)
+        .eq("contributor_id", user.id)
+        .order("created_at", { ascending: false });
+
     return (
         <div className="flex flex-col md:flex-row gap-8 w-full">
             <ProfileSidebar user={user} profile={profile} />
             <div className="flex-1 min-w-0">
-                <ProfileWorks posts={formattedPosts} user={user} />
+                <ProfileWorks
+                    posts={formattedPosts}
+                    modules={modules || []}
+                    templates={templates || []}
+                    user={user}
+                />
             </div>
         </div>
     );

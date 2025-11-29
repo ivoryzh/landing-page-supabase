@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Cpu, Zap, Download, Wifi, Usb, CheckCircle, AlertCircle,
   Settings, Play, ChevronRight, Search, Plus, Trash2, FileText, Code
@@ -9,62 +9,98 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { hardwareOptions, optimizerOptions } from './constants'; // Import data
+import { optimizerOptions } from './constants';
 
-export default function IvoryOSHub({ userEmail }: { userEmail?: string }) {
+import { Database } from "@/utils/supabase/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBuildCart } from "@/context/build-cart-context";
+import Link from 'next/link';
+
+type Module = Database["public"]["Tables"]["modules"]["Row"] & {
+  devices: Database["public"]["Tables"]["devices"]["Row"] | null;
+  profiles: Database["public"]["Tables"]["profiles"]["Row"] | null;
+};
+
+interface IvoryOSHubProps {
+  userEmail?: string;
+  modules: Module[];
+}
+
+export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
   // --- State Management ---
-  const [selectedHardware, setSelectedHardware] = useState<any[]>([]);
+  const { cartItems, removeFromCart, clearCart } = useBuildCart();
   const [selectedOptimizers, setSelectedOptimizers] = useState<string[]>([]);
   const [connections, setConnections] = useState<any>({});
   const [step, setStep] = useState('hardware');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
-  const [showMainPreview, setShowMainPreview] = useState(false);
   const [copiedMain, setCopiedMain] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // --- Logic Helpers ---
-  const filteredHardware = hardwareOptions.filter(hw =>
-    hw.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    hw.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    hw.vendor.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // --- Persistence ---
+  useEffect(() => {
+    const savedOptimizers = localStorage.getItem('ivoryos-build-optimizers');
 
-  const templateOptions: any[] = []; // Add templates here if needed later
-  const filteredTemplates = selectedTemplate ? [selectedTemplate] : templateOptions;
+    if (savedOptimizers) {
+      try {
+        setSelectedOptimizers(JSON.parse(savedOptimizers));
+      } catch (e) {
+        console.error("Failed to parse saved optimizers", e);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
 
-  const getDifficultyColor = (difficulty: string) => {
-    const colors: Record<string, string> = {
-      beginner: 'text-green-600 bg-green-50',
-      intermediate: 'text-yellow-600 bg-yellow-50',
-      advanced: 'text-red-600 bg-red-50'
-    };
-    return colors[difficulty] || 'text-gray-600 bg-gray-50';
-  };
+  // Sync connections with cartItems
+  useEffect(() => {
+    // We want to preserve existing connections if possible, but add new ones for new items
+    // and remove ones for removed items.
+    const newConnections: any = { ...connections };
 
-  const addHardware = (hw: any) => {
-    const instanceId = `${hw.id}-${Date.now()}`;
-    setSelectedHardware([...selectedHardware, { ...hw, instanceId }]);
-    setConnections({
-      ...connections,
-      [instanceId]: {
-        type: hw.connection[0],
-        port: '',
-        baudRate: '115200',
-        ip: '',
-        networkPort: '8080',
-        nickname: `${hw.name} #${selectedHardware.filter(h => h.id === hw.id).length + 1}`
+    // Remove connections for items no longer in cart
+    Object.keys(newConnections).forEach(instanceId => {
+      if (!cartItems.find(item => item.instanceId === instanceId)) {
+        delete newConnections[instanceId];
       }
     });
-  };
 
-  const removeHardware = (instanceId: string) => {
-    setSelectedHardware(selectedHardware.filter(h => h.instanceId !== instanceId));
-    const newConnections = { ...connections };
-    delete newConnections[instanceId];
+    // Add connections for new items
+    cartItems.forEach((item, index) => {
+      if (!newConnections[item.instanceId]) {
+        const initialArgs: Record<string, any> = {};
+        if (item.init_args) {
+          item.init_args.forEach((arg: any) => {
+            if (arg.type === 'bool') initialArgs[arg.name] = false;
+            else initialArgs[arg.name] = '';
+          });
+        }
+
+        // Count how many of this same module (by ID) are already in the cart BEFORE this one
+        // to generate a nice nickname like "Camera #1", "Camera #2"
+        // Actually, let's just use the index in the cart for simplicity or filter by ID.
+        const sameTypeCount = cartItems.filter((i, idx) => i.id === item.id && idx <= index).length;
+
+        newConnections[item.instanceId] = {
+          type: item.connection[0] || 'usb',
+          port: '',
+          ip: '',
+          nickname: `${item.name} #${sameTypeCount}`,
+          args: initialArgs
+        };
+      }
+    });
+
     setConnections(newConnections);
-  };
+  }, [cartItems]);
 
-  const updateConnection = (instanceId: string, field: string, value: string) => {
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('ivoryos-build-optimizers', JSON.stringify(selectedOptimizers));
+    }
+  }, [selectedOptimizers, isLoaded]);
+
+  const updateConnection = (instanceId: string, field: string, value: any) => {
     setConnections({
       ...connections,
       [instanceId]: {
@@ -74,9 +110,22 @@ export default function IvoryOSHub({ userEmail }: { userEmail?: string }) {
     });
   };
 
+  const updateCustomArg = (instanceId: string, argName: string, value: any) => {
+    setConnections({
+      ...connections,
+      [instanceId]: {
+        ...connections[instanceId],
+        args: {
+          ...connections[instanceId].args,
+          [argName]: value
+        }
+      }
+    });
+  };
+
   // --- Code Generation ---
   const generateBashScript = () => {
-    const uniqueHardware = Array.from(new Map(selectedHardware.map(hw => [hw.module, hw])).values());
+    const uniqueHardware = Array.from(new Map(cartItems.map(hw => [hw.module, hw])).values());
     const optimizerPackages = selectedOptimizers.map(id =>
       optimizerOptions.find(o => o.id === id)?.package
     ).filter(Boolean);
@@ -85,15 +134,39 @@ export default function IvoryOSHub({ userEmail }: { userEmail?: string }) {
       return `from ${hw.path} import ${hw.module}`;
     }).join('\n');
 
-    const hardwareInstances = selectedHardware.map(hw => {
-      const varName = connections[hw.instanceId]?.nickname.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const hardwareInstances = cartItems.map(hw => {
+      const varName = connections[hw.instanceId]?.nickname.toLowerCase().replace(/[^a-z0-9]/g, '_') || 'device';
       const conn = connections[hw.instanceId];
+      const args = [];
 
+      // Standard args
       if (conn?.type === 'usb') {
-        return `    ${varName} = ${hw.module}("${conn.port || '/dev/ttyUSB0'}")`;
+        if (conn.port) args.push(`port="${conn.port}"`);
       } else {
-        return `    ${varName} = ${hw.module}(ip="${conn.ip || '127.0.0.1'}", port=${conn.networkPort || 8080})`;
+        if (conn?.ip) args.push(`ip="${conn.ip}"`);
+        if (conn?.networkPort) args.push(`port=${conn.networkPort}`);
       }
+
+      // Custom args
+      if (hw.init_args && conn?.args) {
+        hw.init_args.forEach((argDefinition: any) => {
+          const val = conn.args[argDefinition.name];
+          if (val !== undefined && val !== "") {
+            if (argDefinition.type === 'str') {
+              args.push(`${argDefinition.name}="${val}"`);
+            } else {
+              // int, float, bool (python bool is True/False)
+              if (argDefinition.type === 'bool') {
+                args.push(`${argDefinition.name}=${val ? 'True' : 'False'}`);
+              } else {
+                args.push(`${argDefinition.name}=${val}`);
+              }
+            }
+          }
+        });
+      }
+
+      return `    ${varName} = ${hw.module}(${args.join(', ')})`;
     }).join('\n');
 
     const bashScript = `
@@ -141,7 +214,7 @@ import ivoryos
 
 # Initialize hardware
 try:
-${hardwareInstances}
+${hardwareInstances || '    pass'}
 except Exception as e:
     print(f"Failed to initialize hardware: {e}. Connect them in the web interface or try again.")
     
@@ -174,17 +247,6 @@ if __name__ == "__main__":
     setTimeout(() => setCopiedMain(false), 2000);
   };
 
-  const handleDownloadMain = () => {
-    const { python } = generateBashScript();
-    const pyBlob = new Blob([python], { type: 'text/plain' });
-    const pyUrl = URL.createObjectURL(pyBlob);
-    const pyLink = document.createElement('a');
-    pyLink.href = pyUrl;
-    pyLink.download = 'main.py';
-    pyLink.click();
-    URL.revokeObjectURL(pyUrl);
-  };
-
   // --- Render ---
   return (
     <div className="w-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
@@ -192,13 +254,15 @@ if __name__ == "__main__":
       <div className="bg-muted/50 border-b border-border px-6 py-4">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
-
             <div>
               <h1 className="text-xl font-bold text-foreground">Community Hub</h1>
               <p className="text-sm text-muted-foreground">
                 {userEmail ? `Logged in as ${userEmail}` : 'No-code laboratory automation'}
               </p>
             </div>
+            <a href="/hub/contribute" className="text-xs bg-primary/10 text-primary px-2 py-1 rounded hover:bg-primary/20 transition-colors">
+              + Contribute
+            </a>
           </div>
 
           {/* Navigation Stepper */}
@@ -229,62 +293,39 @@ if __name__ == "__main__":
         {step === 'hardware' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search hardware..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-input bg-background rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-2">
-                {filteredHardware.map(hw => (
-                  <div key={hw.id} className="p-4 border border-border rounded-xl hover:border-primary/50 hover:shadow-md transition-all bg-card">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-2xl">{hw.icon}</span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${getDifficultyColor(hw.difficulty)}`}>
-                        {hw.difficulty}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-foreground text-sm">{hw.name}</h3>
-                    <p className="text-xs text-muted-foreground mb-2">{hw.vendor}</p>
-                    <div className="flex justify-between items-center mt-2">
-                      <div className="flex gap-1">
-                        {hw.connection.map((c: string) => (
-                          <span key={c} className="text-[10px] uppercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                            {c}
-                          </span>
-                        ))}
-                      </div>
-                      <button onClick={() => addHardware(hw)} className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1">
-                        <Plus className="w-4 h-4" /> Add
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-muted/30 border border-border rounded-xl p-8 text-center">
+                <h2 className="text-2xl font-bold mb-2">Build Your Setup</h2>
+                <p className="text-muted-foreground mb-6">
+                  Browse the Modules and Devices pages to add hardware to your build.
+                </p>
+                <div className="flex justify-center gap-4">
+                  <Link href="/hub/modules" className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium hover:bg-primary/90">
+                    Browse Modules
+                  </Link>
+                  <Link href="/hub/devices" className="bg-secondary text-secondary-foreground px-4 py-2 rounded-md font-medium hover:bg-secondary/80">
+                    Browse Devices
+                  </Link>
+                </div>
               </div>
             </div>
 
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
               <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-primary" />
-                Selected ({selectedHardware.length})
+                Selected ({cartItems.length})
               </h3>
 
               <div className="space-y-2 max-h-[500px] overflow-y-auto mb-4">
-                {selectedHardware.length === 0 ? (
+                {cartItems.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">No devices added yet</p>
                 ) : (
-                  selectedHardware.map(hw => (
+                  cartItems.map(hw => (
                     <div key={hw.instanceId} className="p-3 bg-card rounded-lg border border-border shadow-sm flex justify-between items-start">
                       <div>
-                        <p className="text-sm font-medium text-foreground">{connections[hw.instanceId]?.nickname}</p>
+                        <p className="text-sm font-medium text-foreground">{connections[hw.instanceId]?.nickname || hw.name}</p>
                         <p className="text-xs text-muted-foreground">{hw.name}</p>
                       </div>
-                      <button onClick={() => removeHardware(hw.instanceId)} className="text-destructive hover:text-destructive/80">
+                      <button onClick={() => removeFromCart(hw.instanceId)} className="text-destructive hover:text-destructive/80">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -293,8 +334,8 @@ if __name__ == "__main__":
               </div>
 
               <button
-                onClick={() => selectedHardware.length > 0 && setStep('optimizers')}
-                disabled={selectedHardware.length === 0}
+                onClick={() => cartItems.length > 0 && setStep('optimizers')}
+                disabled={cartItems.length === 0}
                 className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next Step
@@ -303,7 +344,6 @@ if __name__ == "__main__":
           </div>
         )}
 
-        {/* Optimizers Step */}
         {/* Optimizers Step */}
         {step === 'optimizers' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -382,7 +422,7 @@ if __name__ == "__main__":
         {step === 'connect' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
-              {selectedHardware.map(hw => (
+              {cartItems.map(hw => (
                 <div key={hw.instanceId} className="border border-border rounded-xl p-6 bg-card shadow-sm hover:border-primary/50 transition-colors">
                   <div className="flex items-center gap-3 mb-4 border-b border-border pb-4">
                     <span className="text-2xl">{hw.icon}</span>
@@ -412,31 +452,45 @@ if __name__ == "__main__":
                         ))}
                       </div>
                     </div>
-
-                    {connections[hw.instanceId]?.type === 'usb' ? (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground block mb-2">Port</label>
-                        <input
-                          type="text"
-                          placeholder="/dev/ttyUSB0"
-                          className="w-full border border-input bg-background rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
-                          value={connections[hw.instanceId]?.port || ''}
-                          onChange={(e) => updateConnection(hw.instanceId, 'port', e.target.value)}
-                        />
-                      </div>
-                    ) : (
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground block mb-2">IP Address</label>
-                        <input
-                          type="text"
-                          placeholder="192.168.1.100"
-                          className="w-full border border-input bg-background rounded px-3 py-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
-                          value={connections[hw.instanceId]?.ip || ''}
-                          onChange={(e) => updateConnection(hw.instanceId, 'ip', e.target.value)}
-                        />
-                      </div>
-                    )}
+                    {/* Removed explicit Port input as requested */}
                   </div>
+
+                  {/* Custom Init Args */}
+                  {hw.init_args && hw.init_args.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <h4 className="text-sm font-medium text-foreground mb-3">Configuration</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {hw.init_args.map((arg: any) => (
+                          <div key={arg.name}>
+                            <Label className="text-xs text-muted-foreground mb-1.5 block">
+                              {arg.name} <span className="text-[10px] opacity-70">({arg.type})</span>
+                            </Label>
+                            {arg.type === 'bool' ? (
+                              <div className="flex items-center space-x-2 h-9">
+                                <Checkbox
+                                  id={`${hw.instanceId}-${arg.name}`}
+                                  checked={connections[hw.instanceId]?.args?.[arg.name] || false}
+                                  onCheckedChange={(c) => updateCustomArg(hw.instanceId, arg.name, !!c)}
+                                />
+                                <label htmlFor={`${hw.instanceId}-${arg.name}`} className="text-sm cursor-pointer">
+                                  Enabled
+                                </label>
+                              </div>
+                            ) : (
+                              <Input
+                                type={arg.type === 'int' || arg.type === 'float' ? 'number' : 'text'}
+                                step={arg.type === 'float' ? 'any' : '1'}
+                                value={connections[hw.instanceId]?.args?.[arg.name] || ''}
+                                onChange={(e) => updateCustomArg(hw.instanceId, arg.name, e.target.value)}
+                                className="h-9"
+                                placeholder={`Enter ${arg.name}...`}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
