@@ -11,7 +11,9 @@ export async function AuthButton() {
 
   return user ? (
     <div className="flex items-center gap-4">
-      Hey, {user.user_metadata?.full_name || user.email?.split("@")[0]}!
+      <Link href="/hub/profile" className="text-sm font-medium hover:underline">
+        Hey, {user.user_metadata?.full_name || user.email?.split("@")[0]}!
+      </Link>
       <LogoutButton />
     </div>
   ) : (
