@@ -4,7 +4,7 @@ import { ProfileForm } from "./profile-form";
 import { ProfileSidebar } from "./profile-sidebar";
 import { ProfileWorks } from "./profile-works";
 
-export const dynamic = "force-dynamic";
+
 
 export default async function ProfilePage() {
     const supabase = await createClient();
