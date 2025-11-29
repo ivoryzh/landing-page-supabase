@@ -3,6 +3,8 @@ import { createClient } from "@/utils/supabase/server";
 
 import IvoryOSHub from "@/app/hub/ivoryos/ivoryos-hub"; // Import your component
 
+export const dynamic = "force-dynamic";
+
 export default async function ProtectedPage() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
