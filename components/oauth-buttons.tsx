@@ -2,21 +2,27 @@
 
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/client";
+import { useSearchParams } from "next/navigation";
 
 export function OAuthButtons() {
     const supabase = createClient();
+    const searchParams = useSearchParams();
 
     async function loginWithGoogle() {
+        const next = searchParams.get("next") || "/";
+
         await supabase.auth.signInWithOAuth({
             provider: "google",
-            options: { redirectTo: `${location.origin}/auth/callback` },
+            options: { redirectTo: `${location.origin}/auth/callback?next=${next}` },
         });
     }
 
     async function loginWithGithub() {
+        const next = searchParams.get("next") || "/";
+
         await supabase.auth.signInWithOAuth({
             provider: "github",
-            options: { redirectTo: `${location.origin}/auth/callback` },
+            options: { redirectTo: `${location.origin}/auth/callback?next=${next}` },
         });
     }
 

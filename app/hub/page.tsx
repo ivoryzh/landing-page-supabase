@@ -10,7 +10,7 @@ export default async function ProtectedPage() {
   const { data, error } = await supabase.auth.getUser();
 
   if (error || !data?.user) {
-    redirect("/auth/login");
+    redirect("/auth/login?next=/hub");
   }
 
   // We can pass user details to the hub to personalize it
