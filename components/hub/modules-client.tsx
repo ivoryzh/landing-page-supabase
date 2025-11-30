@@ -26,6 +26,7 @@ interface Module {
     connection?: any;
     os?: string[];
     init_args?: any;
+    start_command?: string | null;
     python_versions?: string[];
     difficulty?: string;
     is_tested_with_ivoryos?: boolean;
@@ -108,6 +109,7 @@ export default function ModulesClient({ modules }: { modules: Module[] }) {
             isTested: !!module.is_tested_with_ivoryos,
             contributor: module.profiles,
             init_args: module.init_args,
+            start_command: module.start_command,
         });
     };
 

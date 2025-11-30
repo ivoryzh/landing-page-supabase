@@ -54,6 +54,7 @@ export function ProfileWorks({ posts, modules, templates, user }: ProfileWorksPr
             isTested: !!module.is_tested_with_ivoryos,
             contributor: module.profiles,
             init_args: module.init_args,
+            start_command: module.start_command,
         });
     };
 

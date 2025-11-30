@@ -87,26 +87,9 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                             setIsOriginalDeveloper(!!data.is_original_developer);
                             setInitArgs((data.init_args as any[]) || []);
                             setOs(data.os || []);
-                            setOs(data.os || []);
-
-                            let connections: string[] = [];
-                            if (data.connection) {
-                                if (Array.isArray(data.connection)) {
-                                    connections = data.connection as string[];
-                                } else if (typeof data.connection === 'string') {
-                                    try {
-                                        const parsed = JSON.parse(data.connection);
-                                        if (Array.isArray(parsed)) {
-                                            connections = parsed;
-                                        } else {
-                                            connections = [data.connection];
-                                        }
-                                    } catch (e) {
-                                        connections = [data.connection];
-                                    }
-                                }
-                            }
-                            setConnectionTypes(connections);
+                            setConnectionTypes(data.connection || []);
+                            setStartCommand(data.start_command || "");
+                            setDescription(data.description || "");
                         }
                     } else if (typeParam === "template") {
                         const { data, error } = await supabase.from("templates").select("*").eq("id", editIdParam).single();
@@ -149,6 +132,7 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
             setInitArgs([]);
             setOs([]);
             setConnectionTypes([]);
+            setStartCommand("");
 
             setDeviceName("");
             setVendor("");
@@ -183,6 +167,8 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
     const [openDeviceCombobox, setOpenDeviceCombobox] = useState(false);
     const [os, setOs] = useState<string[]>([]);
     const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
+    const [startCommand, setStartCommand] = useState("");
+    const [description, setDescription] = useState("");
 
     // Device Form State
     const [deviceName, setDeviceName] = useState("");
@@ -319,6 +305,8 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                     is_original_developer: isOriginalDeveloper,
                     os: os,
                     connection: connectionTypes,
+                    start_command: startCommand,
+                    description: description,
                 };
 
                 if (editId) {
@@ -602,7 +590,16 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                                         <Command>
                                             <CommandInput placeholder="Search device..." />
                                             <CommandList>
-                                                <CommandEmpty>No device found.</CommandEmpty>
+                                                <CommandEmpty>
+                                                    No device found.{" "}
+                                                    <a
+                                                        href="/hub/contribute?type=device"
+                                                        target="_blank"
+                                                        className="text-primary hover:underline font-medium"
+                                                    >
+                                                        Add new device
+                                                    </a>
+                                                </CommandEmpty>
                                                 <CommandGroup>
                                                     <CommandItem
                                                         value="agnostic"
@@ -644,6 +641,31 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                                     </PopoverContent>
                                 </Popover>
                             </div>
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                            <Label>Start Command (optional)</Label>
+                            <p className="text-sm text-muted-foreground">
+                                Command to run the module. You can use init args as variables, e.g. <code className="bg-muted px-1 rounded">python -m my_module --port {"{port}"}</code>
+                            </p>
+                            <Input
+                                value={startCommand}
+                                onChange={(e) => setStartCommand(e.target.value)}
+                                placeholder="e.g. python -m my_module start"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2 space-y-2">
+                            <Label>Description (optional)</Label>
+                            <p className="text-sm text-muted-foreground">
+                                Provide a brief description of what this module does and its key features.
+                            </p>
+                            <Textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="e.g. A Python driver for controlling XYZ hardware via USB..."
+                                rows={3}
+                            />
                         </div>
 
                         <div className="md:col-span-2 space-y-2">
@@ -774,12 +796,14 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                                             <CommandGroup>
                                                 {[
                                                     "Liquid Handler",
-                                                    "Plate Reader",
-                                                    "Centrifuge",
-                                                    "Thermocycler",
-                                                    "Incubator",
-                                                    "Robot Arm",
+                                                    "Solid Handling & Weighing",
+                                                    "Reactor Control",
+                                                    "Environment Control",
+                                                    "Workup & Sample Processing",
+                                                    "Analytical Instruments",
+                                                    "Storage",
                                                     "Camera/Vision",
+                                                    "Custom Electronics",
                                                     "Other"
                                                 ].map((cat) => (
                                                     <CommandItem

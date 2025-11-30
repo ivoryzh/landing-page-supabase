@@ -19,6 +19,7 @@ export interface CartItem {
     isTested: boolean;
     contributor: any;
     init_args: any;
+    start_command?: string | null;
     instanceId: string; // Unique ID for this specific instance in the cart
 }
 

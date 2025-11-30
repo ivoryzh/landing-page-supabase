@@ -186,9 +186,9 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
     }
 }
 
-if (Test-Path "ivoryos-env") { Remove-Item -Recurse -Force "ivoryos-env" }
-uv venv ivoryos-env
-& .\\ivoryos-env\\Scripts\\Activate.ps1
+if (Test-Path ".venv") { Remove-Item -Recurse -Force ".venv" }
+uv venv .venv
+& .\\.venv\\Scripts\\Activate.ps1
 
 uv pip install ivoryos
 ${uniqueHardware.map(hw => `uv pip install ${hw.package}`).join('\n')}

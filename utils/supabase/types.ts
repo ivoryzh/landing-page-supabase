@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type Json =
     | string
     | number
@@ -7,38 +8,46 @@ export type Json =
     | Json[]
 
 export type Database = {
+    // Allows to automatically instantiate createClient with right options
+    // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+    __InternalSupabase: {
+        PostgrestVersion: "13.0.5"
+    }
     public: {
         Tables: {
             devices: {
                 Row: {
                     category: string | null
+                    connection_guide: string | null
                     created_at: string
                     id: number
                     image_url: string | null
                     name: string
+                    official_url: string | null
                     updated_at: string | null
                     vendor: string
-                    official_url: string | null
                 }
                 Insert: {
                     category?: string | null
+                    connection_guide?: string | null
                     created_at?: string
                     id?: number
                     image_url?: string | null
                     name: string
+                    official_url?: string | null
                     updated_at?: string | null
                     vendor: string
-                    official_url?: string | null
                 }
                 Update: {
                     category?: string | null
+                    connection_guide?: string | null
                     created_at?: string
                     id?: number
                     image_url?: string | null
                     name?: string
+                    official_url?: string | null
                     updated_at?: string | null
                     vendor?: string
-                    official_url?: string | null
                 }
                 Relationships: []
             }
@@ -81,47 +90,40 @@ export type Database = {
                 Row: {
                     created_at: string
                     id: string
-                    post_id: string | null
-                    user_id: string
                     module_id: number | null
+                    post_id: string | null
                     template_id: number | null
+                    user_id: string
                 }
                 Insert: {
                     created_at?: string
                     id?: string
-                    post_id?: string | null
-                    user_id: string
                     module_id?: number | null
+                    post_id?: string | null
                     template_id?: number | null
+                    user_id: string
                 }
                 Update: {
                     created_at?: string
                     id?: string
-                    post_id?: string | null
-                    user_id?: string
                     module_id?: number | null
+                    post_id?: string | null
                     template_id?: number | null
+                    user_id?: string
                 }
                 Relationships: [
-                    {
-                        foreignKeyName: "likes_post_id_fkey"
-                        columns: ["post_id"]
-                        isOneToOne: false
-                        referencedRelation: "gallery_posts"
-                        referencedColumns: ["id"]
-                    },
-                    {
-                        foreignKeyName: "likes_user_id_fkey"
-                        columns: ["user_id"]
-                        isOneToOne: false
-                        referencedRelation: "profiles"
-                        referencedColumns: ["id"]
-                    },
                     {
                         foreignKeyName: "likes_module_id_fkey"
                         columns: ["module_id"]
                         isOneToOne: false
                         referencedRelation: "modules"
+                        referencedColumns: ["id"]
+                    },
+                    {
+                        foreignKeyName: "likes_post_id_fkey"
+                        columns: ["post_id"]
+                        isOneToOne: false
+                        referencedRelation: "gallery_posts"
                         referencedColumns: ["id"]
                     },
                     {
@@ -131,19 +133,28 @@ export type Database = {
                         referencedRelation: "templates"
                         referencedColumns: ["id"]
                     },
+                    {
+                        foreignKeyName: "likes_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
                 ]
             }
             modules: {
                 Row: {
-                    connection: Json | null
+                    connection: string[] | null
                     contributor_id: string | null
                     created_at: string
+                    description: string | null
                     device_id: number | null
                     difficulty: string | null
                     download_count: number | null
                     icon_emoji: string | null
                     id: number
                     init_args: Json | null
+                    is_original_developer: boolean | null
                     is_tested_with_ivoryos: boolean | null
                     is_unlisted: boolean | null
                     module_name: string
@@ -152,42 +163,46 @@ export type Database = {
                     os: string[] | null
                     pip_name: string
                     python_versions: string[] | null
+                    start_command: string | null
                     status: string | null
                     updated_at: string | null
-                    is_original_developer: boolean | null
                 }
                 Insert: {
-                    connection?: Json | null
+                    connection?: string[] | null
                     contributor_id?: string | null
                     created_at?: string
+                    description?: string | null
                     device_id?: number | null
                     difficulty?: string | null
                     download_count?: number | null
                     icon_emoji?: string | null
                     id?: number
                     init_args?: Json | null
+                    is_original_developer?: boolean | null
                     is_tested_with_ivoryos?: boolean | null
                     is_unlisted?: boolean | null
-                    module_name?: string
+                    module_name: string
                     module_path?: string | null
                     name: string
                     os?: string[] | null
                     pip_name: string
                     python_versions?: string[] | null
+                    start_command?: string | null
                     status?: string | null
                     updated_at?: string | null
-                    is_original_developer?: boolean | null
                 }
                 Update: {
-                    connection?: Json | null
+                    connection?: string[] | null
                     contributor_id?: string | null
                     created_at?: string
+                    description?: string | null
                     device_id?: number | null
                     difficulty?: string | null
                     download_count?: number | null
                     icon_emoji?: string | null
                     id?: number
                     init_args?: Json | null
+                    is_original_developer?: boolean | null
                     is_tested_with_ivoryos?: boolean | null
                     is_unlisted?: boolean | null
                     module_name?: string
@@ -196,9 +211,9 @@ export type Database = {
                     os?: string[] | null
                     pip_name?: string
                     python_versions?: string[] | null
+                    start_command?: string | null
                     status?: string | null
                     updated_at?: string | null
-                    is_original_developer?: boolean | null
                 }
                 Relationships: [
                     {
@@ -223,30 +238,30 @@ export type Database = {
                     created_at: string
                     full_name: string | null
                     id: string
+                    lab_info: string | null
                     updated_at: string | null
                     username: string | null
                     website: string | null
-                    lab_info: string | null
                 }
                 Insert: {
                     avatar_url?: string | null
                     created_at?: string
                     full_name?: string | null
                     id: string
+                    lab_info?: string | null
                     updated_at?: string | null
                     username?: string | null
                     website?: string | null
-                    lab_info?: string | null
                 }
                 Update: {
                     avatar_url?: string | null
                     created_at?: string
                     full_name?: string | null
                     id?: string
+                    lab_info?: string | null
                     updated_at?: string | null
                     username?: string | null
                     website?: string | null
-                    lab_info?: string | null
                 }
                 Relationships: []
             }
@@ -406,3 +421,9 @@ export type CompositeTypes<
     : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+    public: {
+        Enums: {},
+    },
+} as const

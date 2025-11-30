@@ -87,7 +87,7 @@ export function ModuleDetailDialog({ module, open, onOpenChange }: ModuleDetailD
             name: module.name,
             category: joinedModule.devices?.category || "Uncategorized",
             vendor: joinedModule.devices?.vendor || "Unknown",
-            connection: module.connection ? (Array.isArray(module.connection) ? module.connection as string[] : [module.connection as string]) : ['usb'],
+            connection: module.connection || ['usb'],
             os: module.os || [],
             icon: module.icon_emoji || '📦',
             specs: module.python_versions?.join(", ") || "Any",
@@ -167,6 +167,20 @@ export function ModuleDetailDialog({ module, open, onOpenChange }: ModuleDetailD
                                 <span className="text-muted-foreground">Published:</span>
                                 <p>{new Date(module.created_at).toLocaleDateString()}</p>
                             </div>
+                            {module.description && (
+                                <div className="col-span-2 space-y-1">
+                                    <span className="text-muted-foreground">Description:</span>
+                                    <p className="text-sm">{module.description}</p>
+                                </div>
+                            )}
+                            {module.start_command && (
+                                <div className="col-span-2 space-y-1">
+                                    <span className="text-muted-foreground">Start Command:</span>
+                                    <p className="font-mono bg-muted px-2 py-1 rounded block overflow-x-auto">
+                                        {module.start_command}
+                                    </p>
+                                </div>
+                            )}
                             {module.init_args && (
                                 <div className="col-span-2 space-y-2">
                                     <span className="text-muted-foreground">Init Args:</span>
