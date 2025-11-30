@@ -56,6 +56,7 @@ export function Navbar() {
 
                 {/* Mobile Nav */}
                 <MobileNav
+                    links={navLinks}
                     authButton={
                         <Suspense
                             fallback={

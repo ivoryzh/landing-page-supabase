@@ -30,6 +30,14 @@ export default async function DevicesPage() {
         return <div>Error loading devices</div>;
     }
 
+    const { data: profile } = user ? await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single() : { data: null };
+
+    const isAdmin = profile?.role === "admin";
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -47,7 +55,7 @@ export default async function DevicesPage() {
                 </Link>
             </div>
 
-            <DeviceList devices={devices as any} />
+            <DeviceList devices={devices as any} isAdmin={isAdmin} userId={user?.id} />
         </div>
     );
 }

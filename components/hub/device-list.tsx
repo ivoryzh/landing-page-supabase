@@ -13,8 +13,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Check, Plus, ExternalLink, ArrowLeft, Search } from "lucide-react";
+import { Check, Plus, ExternalLink, ArrowLeft, Search, Edit, Trash2 } from "lucide-react";
 import { useBuildCart } from "@/context/build-cart-context";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 interface Module {
     id: number;
@@ -48,11 +50,13 @@ interface Device {
     official_url: string | null;
     connection_guide?: string | null;
     modules: Module[];
+    contributor_id?: string | null;
 }
 
-export default function DeviceList({ devices }: { devices: Device[] }) {
+export default function DeviceList({ devices, isAdmin, userId }: { devices: Device[], isAdmin?: boolean, userId?: string }) {
     const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
     const { addToCart, cartItems } = useBuildCart();
+    const router = useRouter();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedVendor, setSelectedVendor] = useState<string>("all");
@@ -164,6 +168,24 @@ export default function DeviceList({ devices }: { devices: Device[] }) {
                                 />
                             ) : (
                                 <span className="text-4xl">🔬</span>
+                            )}
+
+                            {/* Admin Controls */}
+                            {(isAdmin || (userId && device.contributor_id === userId)) && (
+                                <div className="absolute top-2 left-2 flex gap-2 z-20" onClick={(e) => e.stopPropagation()}>
+                                    <Button
+                                        size="icon"
+                                        variant="secondary"
+                                        className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.push(`/hub/contribute?type=device&edit_id=${device.id}`);
+                                        }}
+                                    >
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
+
+                                </div>
                             )}
                         </div>
                         <div className="p-4">

@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
-export function HubNavbar() {
+export function HubNavbar({ isAdmin }: { isAdmin?: boolean }) {
     const navLinks = [
         { href: "/hub/devices", label: "Devices" },
         { href: "/hub/modules", label: "Modules" },
         { href: "/hub/templates", label: "Templates" },
         { href: "/hub/gallery", label: "Gallery" },
+        ...(isAdmin ? [{ href: "/hub/admin/users", label: "Admin" }] : []),
         // Contribute is handled separately now
     ];
 
@@ -86,9 +87,18 @@ export function HubNavbar() {
                     Let's assume MobileNav is hardcoded for now and might need a prop update.
                     Checking MobileNav content would be good, but I'll stick to Desktop for now or pass links if supported.
                 */}
-                <div className="md:hidden">
-                    {/* Placeholder for mobile nav or reuse existing if it supports props */}
-                </div>
+                <MobileNav
+                    links={navLinks}
+                    authButton={
+                        <Suspense
+                            fallback={
+                                <div className="w-full h-9 bg-muted animate-pulse rounded-md" />
+                            }
+                        >
+                            <AuthButton />
+                        </Suspense>
+                    }
+                />
             </div>
         </nav>
     );

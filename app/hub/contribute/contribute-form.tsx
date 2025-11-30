@@ -106,7 +106,16 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                         if (data) {
                             setPostTitle(data.title);
                             setPostDescription(data.description || "");
-                            // We don't set the file input, but we can show a preview if needed or just rely on the fact that if no new file is chosen, we keep the old one.
+                        }
+                    } else if (typeParam === "device") {
+                        const { data, error } = await supabase.from("devices").select("*").eq("id", editIdParam).single();
+                        if (error) throw error;
+                        if (data) {
+                            setDeviceName(data.name);
+                            setVendor(data.vendor);
+                            setCategory(data.category || "");
+                            setOfficialUrl(data.official_url || "");
+                            // We can't easily set the file input for image, but we can handle it if new one is uploaded
                         }
                     }
                 } catch (error) {
@@ -216,6 +225,7 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
             if (type === "module") table = "modules";
             else if (type === "template") table = "templates";
             else if (type === "post") table = "gallery_posts";
+            else if (type === "device") table = "devices";
             else {
                 toast.error("Deletion not supported for this type yet.");
                 return;
@@ -337,17 +347,33 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                 }
 
                 // Note: Devices don't have edit support yet as per plan
-                const { error } = await supabase.from("devices").insert({
+                const payload: any = {
                     name: deviceName,
                     vendor: vendor,
                     category: category,
-                    image_url: imageUrl,
                     official_url: officialUrl,
                     connection_guide: (document.getElementById("connection-guide") as HTMLTextAreaElement)?.value || null,
-                });
+                };
 
-                if (error) throw error;
-                toast.success("Device submitted successfully!");
+                if (imageUrl) {
+                    payload.image_url = imageUrl;
+                }
+
+                if (editId) {
+                    const { error } = await supabase.from("devices").update(payload).eq("id", editId);
+                    if (error) throw error;
+                    toast.success("Device updated successfully!");
+                } else {
+                    if (!imageUrl) {
+                        // Optional: enforce image for new devices? 
+                        // For now let's allow without image or maybe warn.
+                    }
+                    payload.image_url = imageUrl;
+                    payload.contributor_id = userId; // Set contributor on creation
+                    const { error } = await supabase.from("devices").insert(payload);
+                    if (error) throw error;
+                    toast.success("Device submitted successfully!");
+                }
             } else if (type === "template") {
                 let parsedJson;
                 try {

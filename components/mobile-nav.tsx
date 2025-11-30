@@ -15,18 +15,13 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 
 interface MobileNavProps {
     authButton: React.ReactNode;
+    links: { href: string; label: string }[];
 }
 
-export function MobileNav({ authButton }: MobileNavProps) {
+export function MobileNav({ authButton, links }: MobileNavProps) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const navLinks = [
-        { href: "/#home", label: "Home" },
-        { href: "/#developer", label: "Solution" },
-        { href: "/#personas", label: "Why IvoryOS" },
-        { href: "/#gallery", label: "Gallery" },
-        { href: "/#community", label: "Community" },
-    ];
+
 
     return (
         <div className="md:hidden flex items-center gap-4">
@@ -43,7 +38,7 @@ export function MobileNav({ authButton }: MobileNavProps) {
                         <SheetTitle>Menu</SheetTitle>
                     </SheetHeader>
                     <div className="flex flex-col gap-4 mt-8">
-                        {navLinks.map((link) => (
+                        {links.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
