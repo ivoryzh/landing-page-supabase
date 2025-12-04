@@ -97,7 +97,7 @@ export function FeaturedGallery() {
                         </p>
                     </div>
                     <Button asChild variant="outline" className="gap-2">
-                        <Link href="/gallery">
+                        <Link href="/hub/gallery">
                             View All Gallery <ArrowRight className="h-4 w-4" />
                         </Link>
                     </Button>

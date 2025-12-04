@@ -25,23 +25,21 @@ type Module = Database["public"]["Tables"]["modules"]["Row"] & {
 };
 
 interface IvoryOSHubProps {
-  userEmail?: string;
+  userEmail: string | null;
   modules: Module[];
 }
 
 export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
-  // --- State Management ---
   const { cartItems, removeFromCart, clearCart } = useBuildCart();
   const [selectedOptimizers, setSelectedOptimizers] = useState<string[]>([]);
   const [connections, setConnections] = useState<any>({});
   const [step, setStep] = useState('hardware');
   const [copiedMain, setCopiedMain] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [port, setPort] = useState('8000');
 
-  // --- Persistence ---
   useEffect(() => {
     const savedOptimizers = localStorage.getItem('ivoryos-build-optimizers');
-
     if (savedOptimizers) {
       try {
         setSelectedOptimizers(JSON.parse(savedOptimizers));
@@ -54,8 +52,6 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
 
   // Sync connections with cartItems
   useEffect(() => {
-    // We want to preserve existing connections if possible, but add new ones for new items
-    // and remove ones for removed items.
     const newConnections: any = { ...connections };
 
     // Remove connections for items no longer in cart
@@ -76,9 +72,6 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
           });
         }
 
-        // Count how many of this same module (by ID) are already in the cart BEFORE this one
-        // to generate a nice nickname like "Camera #1", "Camera #2"
-        // Actually, let's just use the index in the cart for simplicity or filter by ID.
         const sameTypeCount = cartItems.filter((i, idx) => i.id === item.id && idx <= index).length;
 
         newConnections[item.instanceId] = {
@@ -194,7 +187,7 @@ uv pip install ivoryos
 ${uniqueHardware.map(hw => `uv pip install ${hw.package}`).join('\n')}
 ${optimizerPackages.map(pkg => `uv pip install ${pkg}`).join('\n')}
 
-Start-Process "http://localhost:8000"
+Start-Process "http://localhost:${port}"
 python main.py
 `;
 
@@ -220,7 +213,7 @@ except Exception as e:
     
 # Start IvoryOS web interface
 if __name__ == "__main__":
-    ivoryos.run(__name__)
+    ivoryos.run(__name__, port=${port})
 `;
 
     return { bash: bashScript, python: mainScript, bat: batScript };
@@ -247,7 +240,6 @@ if __name__ == "__main__":
     setTimeout(() => setCopiedMain(false), 2000);
   };
 
-  // --- Render ---
   return (
     <div className="w-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
       {/* Header Bar */}
@@ -256,21 +248,20 @@ if __name__ == "__main__":
           <div className="flex items-center gap-3">
             <div>
               <h1 className="text-xl font-bold text-foreground">Community Hub</h1>
-              <p className="text-sm text-muted-foreground">
+              {/* <p className="text-sm text-muted-foreground">
                 {userEmail ? `Logged in as ${userEmail}` : 'No-code laboratory automation'}
-              </p>
+              </p> */}
             </div>
             <a href="/hub/contribute" className="text-xs bg-primary/10 text-primary px-2 py-1 rounded hover:bg-primary/20 transition-colors">
               + Contribute
             </a>
           </div>
 
-          {/* Navigation Stepper */}
           <div className="flex items-center gap-2 text-xs md:text-sm overflow-x-auto pb-2 md:pb-0">
             {[
               { id: 'hardware', icon: Cpu, label: 'Hardware' },
-              { id: 'optimizers', icon: Zap, label: 'Optimizers' },
               { id: 'connect', icon: Settings, label: 'Connect' },
+              { id: 'optimizers', icon: Zap, label: 'IvoryOS Config' },
               { id: 'launch', icon: Play, label: 'Launch' },
             ].map((s, idx, arr) => (
               <React.Fragment key={s.id}>
@@ -333,85 +324,9 @@ if __name__ == "__main__":
                 )}
               </div>
 
-              <button
-                onClick={() => cartItems.length > 0 && setStep('optimizers')}
-                disabled={cartItems.length === 0}
-                className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next Step
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Optimizers Step */}
-        {step === 'optimizers' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-2">
-                {optimizerOptions.map(opt => (
-                  <div
-                    key={opt.id}
-                    className={`p-4 border rounded-xl transition-all bg-card ${selectedOptimizers.includes(opt.id)
-                      ? 'border-primary shadow-md'
-                      : 'border-border hover:border-primary/50 hover:shadow-md'
-                      }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-2xl">{opt.icon}</span>
-                      <button
-                        onClick={() => setSelectedOptimizers(prev =>
-                          prev.includes(opt.id) ? prev.filter(id => id !== opt.id) : [...prev, opt.id]
-                        )}
-                        className={`text-sm font-medium flex items-center gap-1 ${selectedOptimizers.includes(opt.id) ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
-                      >
-                        {selectedOptimizers.includes(opt.id) ? <CheckCircle className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                        {selectedOptimizers.includes(opt.id) ? 'Added' : 'Add'}
-                      </button>
-                    </div>
-                    <h3 className="font-bold text-foreground text-sm">{opt.name}</h3>
-                    <p className="text-xs text-primary mb-2">{opt.source}</p>
-                    <p className="text-xs text-muted-foreground">{opt.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Sidebar for Selected Optimizers */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
-              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                Selected ({selectedOptimizers.length})
-              </h3>
-
-              <div className="space-y-2 max-h-[500px] overflow-y-auto mb-4">
-                {selectedOptimizers.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">No optimizers added yet</p>
-                ) : (
-                  selectedOptimizers.map(optId => {
-                    const opt = optimizerOptions.find(o => o.id === optId);
-                    if (!opt) return null;
-                    return (
-                      <div key={opt.id} className="p-3 bg-card rounded-lg border border-border shadow-sm flex justify-between items-start">
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{opt.name}</p>
-                          <p className="text-xs text-muted-foreground">{opt.source}</p>
-                        </div>
-                        <button onClick={() => setSelectedOptimizers(prev => prev.filter(id => id !== opt.id))} className="text-destructive hover:text-destructive/80">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
               <div className="flex flex-col gap-2">
                 <button onClick={() => setStep('connect')} className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
                   Next Step
-                </button>
-                <button onClick={() => setStep('hardware')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
-                  Back to Hardware
                 </button>
               </div>
             </div>
@@ -424,7 +339,7 @@ if __name__ == "__main__":
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map(hw => (
                 <div key={hw.instanceId} className="border border-border rounded-xl p-6 bg-card shadow-sm hover:border-primary/50 transition-colors">
-                  <div className="flex items-center gap-3 mb-4 border-b border-border pb-4">
+                  <div className="flex items-center gap-3 ">
                     <span className="text-2xl">{hw.icon}</span>
                     <input
                       type="text"
@@ -432,32 +347,21 @@ if __name__ == "__main__":
                       onChange={(e) => updateConnection(hw.instanceId, 'nickname', e.target.value)}
                       className="font-bold text-foreground text-lg bg-transparent border-b-2 border-transparent hover:border-primary/50 focus:border-primary focus:outline-none flex-1"
                     />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-muted-foreground block mb-2">Type</label>
-                      <div className="flex gap-2">
-                        {hw.connection.map((conn: string) => (
-                          <button
-                            key={conn}
-                            onClick={() => updateConnection(hw.instanceId, 'type', conn)}
-                            className={`flex-1 py-1.5 px-3 rounded text-sm border transition-colors ${connections[hw.instanceId]?.type === conn
-                              ? 'bg-primary/10 border-primary text-primary'
-                              : 'bg-background border-input text-muted-foreground hover:bg-accent'
-                              }`}
-                          >
-                            {conn.toUpperCase()}
-                          </button>
-                        ))}
-                      </div>
+                    <div className="flex items-center gap-2">
+                      {hw.connection.map((conn: string) => (
+                        <span
+                          key={conn}
+                          className={`text-xs px-2 py-1 rounded border`}
+                        >
+                          {conn.toUpperCase()}
+                        </span>
+                      ))}
                     </div>
-                    {/* Removed explicit Port input as requested */}
                   </div>
 
                   {/* Custom Init Args */}
                   {hw.init_args && hw.init_args.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-border">
+                    <div className="mt-4 pt-4">
                       <h4 className="text-sm font-medium text-foreground mb-3">Configuration</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {hw.init_args.map((arg: any) => (
@@ -499,11 +403,101 @@ if __name__ == "__main__":
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
               <h3 className="font-bold text-foreground mb-3">Actions</h3>
               <div className="flex flex-col gap-2">
+                <button onClick={() => setStep('optimizers')} className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
+                  Next Step
+                </button>
+                <button onClick={() => setStep('hardware')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
+                  Back to Hardware
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Optimizers Step (IvoryOS Config) */}
+        {step === 'optimizers' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-2">
+                {optimizerOptions.map(opt => (
+                  <div
+                    key={opt.id}
+                    className={`p-4 border rounded-xl transition-all bg-card ${selectedOptimizers.includes(opt.id)
+                      ? 'border-primary shadow-md'
+                      : 'border-border hover:border-primary/50 hover:shadow-md'
+                      }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-2xl">{opt.icon}</span>
+                      <button
+                        onClick={() => setSelectedOptimizers(prev =>
+                          prev.includes(opt.id) ? prev.filter(id => id !== opt.id) : [...prev, opt.id]
+                        )}
+                        className={`text-sm font-medium flex items-center gap-1 ${selectedOptimizers.includes(opt.id) ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                      >
+                        {selectedOptimizers.includes(opt.id) ? <CheckCircle className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                        {selectedOptimizers.includes(opt.id) ? 'Added' : 'Add'}
+                      </button>
+                    </div>
+                    <h3 className="font-bold text-foreground text-sm">{opt.name}</h3>
+                    <p className="text-xs text-primary mb-2">{opt.source}</p>
+                    <p className="text-xs text-muted-foreground">{opt.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sidebar for Selected Optimizers & Config */}
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 h-fit">
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-primary" />
+                Configuration
+              </h3>
+
+              <div className="mb-6 space-y-2">
+                <label className="text-sm font-medium text-foreground">IvoryOS Port</label>
+                <Input
+                  value={port}
+                  onChange={(e) => setPort(e.target.value)}
+                  placeholder="8000"
+                  className="bg-card"
+                />
+                <p className="text-xs text-muted-foreground">Port to run the IvoryOS web server on.</p>
+              </div>
+
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-primary" />
+                Selected ({selectedOptimizers.length})
+              </h3>
+
+              <div className="space-y-2 max-h-[500px] overflow-y-auto mb-4">
+                {selectedOptimizers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">No optimizers added yet</p>
+                ) : (
+                  selectedOptimizers.map(optId => {
+                    const opt = optimizerOptions.find(o => o.id === optId);
+                    if (!opt) return null;
+                    return (
+                      <div key={opt.id} className="p-3 bg-card rounded-lg border border-border shadow-sm flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{opt.name}</p>
+                          <p className="text-xs text-muted-foreground">{opt.source}</p>
+                        </div>
+                        <button onClick={() => setSelectedOptimizers(prev => prev.filter(id => id !== opt.id))} className="text-destructive hover:text-destructive/80">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
                 <button onClick={() => setStep('launch')} className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
                   Next Step
                 </button>
-                <button onClick={() => setStep('optimizers')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
-                  Back to Optimizers
+                <button onClick={() => setStep('connect')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
+                  Back to Connect
                 </button>
               </div>
             </div>
@@ -557,8 +551,8 @@ if __name__ == "__main__":
                   <Download className="w-5 h-5" />
                   Download Files
                 </button>
-                <button onClick={() => setStep('connect')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
-                  Back to Connect
+                <button onClick={() => setStep('optimizers')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
+                  Back to IvoryOS Config
                 </button>
               </div>
             </div>
@@ -567,4 +561,4 @@ if __name__ == "__main__":
       </div>
     </div>
   );
-};
+}
