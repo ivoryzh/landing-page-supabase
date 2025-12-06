@@ -184,7 +184,7 @@ uv venv .venv
 & .\\.venv\\Scripts\\Activate.ps1
 
 uv pip install ivoryos
-${uniqueHardware.map(hw => `uv pip install ${hw.package}`).join('\n')}
+${Array.from(new Set(uniqueHardware.map(hw => hw.package))).map(pkg => `uv pip install ${pkg}`).join('\n')}
 ${optimizerPackages.map(pkg => `uv pip install ${pkg}`).join('\n')}
 
 Start-Process "http://localhost:${port}"
