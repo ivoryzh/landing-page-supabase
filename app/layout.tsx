@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "IvoryOS - Self-Driving Labs in One Line",
   description: "The modular platform for rapid hardware and analysis development.",
   icons: {
-    icon: "/assets/favicon.ico",
+    icon: "/favicon.ico",
   },
 };
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Youtube, Github } from "lucide-react";
 import { HomeSteps } from "@/components/home-steps";
 
 export function HeroSection() {
@@ -28,13 +28,22 @@ export function HeroSection() {
                         IvoryOS Hub (Beta)
                     </Link>
                     <a
-                        href="https://discord.gg/3KdjhUmsYA"
+                        href="https://www.youtube.com/@JasonHein/Videos"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8"
-                        style={{ backgroundColor: '#8a9ad6', color: 'white', borderColor: '#8a9ad6' }}
+                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 px-8"
                     >
-                        Join our Discord
+                        <Youtube className="w-4 h-4" />
+                        Watch on YouTube
+                    </a>
+                    <a
+                        href="https://github.com/ivoryos-ai"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-11 px-8"
+                    >
+                        <Github className="w-4 h-4" />
+                        GitHub
                     </a>
                 </div>
             </div>
