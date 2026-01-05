@@ -1,9 +1,11 @@
-import { HubNavbar } from "@/components/hub-navbar";
+import { Navbar } from "@/components/navbar";
 import * as React from "react";
-import { Copyright } from "@/components/copyright";
 import { BuildCartProvider } from "@/context/build-cart-context";
 import { FloatingCart } from "@/components/hub/floating-cart";
 import { createClient } from "@/utils/supabase/server";
+import { HubSidebar } from "@/components/hub-sidebar";
+import { Footer } from "@/components/footer";
+import { AuthButton } from "@/components/auth-button";
 
 export default async function HubLayout({
   children,
@@ -26,25 +28,17 @@ export default async function HubLayout({
   return (
     <BuildCartProvider>
       <div className="flex-1 w-full flex flex-col min-h-screen">
-        <HubNavbar isAdmin={isAdmin} />
+        <Navbar authButton={<AuthButton />} />
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-12">
-          {children}
-        </main>
+        <div className="flex-1 w-full max-w-7xl mx-auto flex">
+          <HubSidebar isAdmin={isAdmin} />
+          <main className="flex-1 px-4 py-8 overflow-x-hidden">
+            {children}
+          </main>
+        </div>
 
         <FloatingCart />
-
-        <footer className="w-full border-t border-border/40 py-12 bg-muted/20">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8 text-sm text-muted-foreground">
-            <div className="flex flex-col gap-2">
-              <p className="font-semibold text-foreground">IvoryOS</p>
-              <Copyright />
-              <p className="text-xs text-muted-foreground/60 max-w-md">
-                Disclaimer: Modules are sourced from PyPI. We do not guarantee the safety or reliability of external packages.
-              </p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </BuildCartProvider>
   );

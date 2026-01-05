@@ -59,7 +59,7 @@ ivoryos.run(__name__)`;
         <section id="developer" className="w-full py-16 bg-muted/30 border-y border-border/40">
             <div className="max-w-7xl mx-auto px-4 flex flex-col gap-12">
                 <div className="text-center space-y-4">
-                    <h2 className="text-3xl font-bold">Powered by IvoryOS</h2>
+                    <h2 className="text-3xl font-bold">IvoryOS Core</h2>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                         Write your lab automation once. IvoryOS turns it into an experiment platform in one line.
                     </p>

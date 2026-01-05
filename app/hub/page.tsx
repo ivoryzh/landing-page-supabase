@@ -36,4 +36,5 @@ export default async function ProtectedPage() {
       </div>
     </div>
   );
+
 }

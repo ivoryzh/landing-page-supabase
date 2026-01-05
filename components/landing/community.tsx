@@ -2,11 +2,10 @@ export function Community() {
     return (
         <section id="community" className="w-full py-16 md:py-24 bg-muted/30 border-y border-border/40">
             <div className="max-w-4xl mx-auto px-4 text-center space-y-8">
-                <h2 className="text-3xl font-bold">Community</h2>
+                <h2 className="text-3xl font-bold">Join the Community</h2>
                 <p className="text-xl text-muted-foreground">
-                    Be part of the growing IvoryOS community. Whether you're sharing instrument drivers,
-                    contributing workflows, offering ideas, or exploring automation for your lab,
-                    your participation helps expand an open, collaborative ecosystem for scientific innovation.
+                    Connect directly with the developers and other scientists using IvoryOS.
+                    Ask questions, share your workflows, and help shape the future of lab automation.
                 </p>
                 <a
                     href="https://discord.gg/3KdjhUmsYA"

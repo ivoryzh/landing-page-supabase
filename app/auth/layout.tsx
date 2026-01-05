@@ -1,3 +1,4 @@
+import { AuthButton } from "@/components/auth-button";
 import { Navbar } from "@/components/navbar";
 import * as React from "react";
 import { Copyright } from "@/components/copyright";
@@ -9,7 +10,7 @@ export default function AuthLayout({
 }) {
     return (
         <div className="flex-1 w-full flex flex-col min-h-screen">
-            <Navbar />
+            <Navbar authButton={<AuthButton />} />
 
             <main className="flex-1 w-full flex flex-col items-center justify-center px-4 py-12">
                 {children}

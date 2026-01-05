@@ -1,18 +1,53 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Suspense } from "react";
 import { MobileNav } from "@/components/mobile-nav";
+import { ChevronDown } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
-export function Navbar() {
-    const navLinks = [
-        { href: "/#home", label: "Home" },
-        { href: "/#developer", label: "Solution" },
-        { href: "/#personas", label: "Why IvoryOS" },
-        { href: "/#gallery", label: "Gallery" },
-        { href: "/#community", label: "Community" },
+interface NavbarProps {
+    authButton: React.ReactNode;
+}
+
+export function Navbar({ authButton }: NavbarProps) {
+    const pathname = usePathname();
+    const isHub = pathname?.startsWith("/hub");
+
+    const navItems = [
+        { href: "/", label: "Home" },
+        {
+            label: "Product",
+            children: [
+
+                { href: "/#developer", label: "IvoryOS Core" },
+                { href: "/#hub", label: "Hub" },
+            ],
+        },
+        {
+            label: "Stories",
+            children: [
+                { href: "/#personas", label: "User Stories" },
+                { href: "/#gallery", label: "Gallery" },
+                { href: "/#team", label: "Team" },
+                { href: "/#open-source", label: "Open Source" },
+            ],
+        },
+        {
+            label: "Hub",
+            children: [
+                { href: "/hub", label: "Hub" },
+                { href: "/hub/devices", label: "Devices" },
+                { href: "/hub/modules", label: "Modules" },
+                { href: "/hub/templates", label: "Templates" },
+                // { href: "/hub/gallery", label: "Gallery" },
+            ],
+        }
     ];
+
 
     return (
         <nav className="w-full flex justify-center border-b border-b-foreground/20 h-16 sticky top-0 bg-slate-100/80 dark:bg-background/80 backdrop-blur-md z-50 shadow-sm">
@@ -32,14 +67,39 @@ export function Navbar() {
 
                 {/* Desktop Nav */}
                 <div className="hidden md:flex gap-6 items-center">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            className="text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            {link.label}
-                        </Link>
+                    {navItems.map((item: any, index) => (
+                        item.children ? (
+                            <div key={index} className="relative group">
+                                <button className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors py-2">
+                                    {item.label}
+                                    <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
+                                </button>
+                                <div className="absolute top-full left-0 pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                    <div className="bg-popover border border-border rounded-md shadow-md flex flex-col p-1 overflow-hidden">
+                                        {item.children.map((child: any) => (
+                                            <Link
+                                                key={child.href}
+                                                href={child.href}
+                                                className="px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground rounded-sm transition-colors text-left"
+                                            >
+                                                {child.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <Link
+                                key={index}
+                                href={item.href}
+                                className={cn(
+                                    "text-muted-foreground hover:text-foreground transition-colors",
+                                    (pathname === item.href) && "text-foreground font-medium"
+                                )}
+                            >
+                                {item.label}
+                            </Link>
+                        )
                     ))}
                 </div>
 
@@ -50,20 +110,20 @@ export function Navbar() {
                             <div className="w-20 h-9 bg-muted animate-pulse rounded-md" />
                         }
                     >
-                        <AuthButton />
+                        {authButton}
                     </Suspense>
                 </div>
 
                 {/* Mobile Nav */}
                 <MobileNav
-                    links={navLinks}
+                    links={navItems}
                     authButton={
                         <Suspense
                             fallback={
                                 <div className="w-full h-9 bg-muted animate-pulse rounded-md" />
                             }
                         >
-                            <AuthButton />
+                            {authButton}
                         </Suspense>
                     }
                 />
