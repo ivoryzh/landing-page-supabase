@@ -17,7 +17,7 @@ export function Team() {
     ];
 
     return (
-        <section id="team" className="w-full py-16 md:py-24">
+        <section id="team" className="w-full py-8 md:py-16 ">
             <div className="max-w-7xl mx-auto px-4 flex flex-col gap-16">
 
                 {/* Team Grid */}
@@ -25,7 +25,7 @@ export function Team() {
                     <div className="text-center space-y-4">
                         <h2 className="text-3xl md:text-4xl font-bold">Meet the Team</h2>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                            IvoryOS initiated in 2023 at the University of British Columbia (Hein Lab), driven by a passion for open automation.
+                            IvoryOS initiated in 2023 at the University of British Columbia (Hein Lab).
                         </p>
                     </div>
 
@@ -45,7 +45,7 @@ export function Team() {
                 </div>
 
                 {/* Acknowledgements */}
-                <div className="flex flex-col items-center gap-6 border-t pt-16">
+                <div className="flex flex-col items-center gap-6 pt-16">
                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest text-center">
                         With support from
                     </p>

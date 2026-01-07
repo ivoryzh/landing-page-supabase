@@ -1,17 +1,15 @@
 import { Suspense } from "react";
 import { Copyright } from "@/components/copyright";
 import { HeroSection } from "@/components/landing/hero-section";
-import { HomeSteps } from "@/components/home-steps";
+import { HomeHubSteps } from "@/components/landing/home-steps";
 import { DeveloperDemo } from "@/components/landing/developer-demo";
-import { Personas } from "@/components/landing/personas";
+import { WhyIvoryOS } from "@/components/landing/why-ivoryos";
 import { Community } from "@/components/landing/community";
 import { Partners } from "@/components/landing/partners";
-// import { GallerySection } from "@/components/landing/gallery-section";
 import { FeaturedGallery } from "@/components/landing/featured-gallery";
 import { Team } from "@/components/landing/team";
 import { OpenSource } from "@/components/landing/open-source";
-
-// import { FAQ } from "@/components/landing/faq";
+import { FAQ } from "@/components/landing/faq";
 
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -28,13 +26,11 @@ export default function Home() {
         <HeroSection />
         <Partners />
         <DeveloperDemo />
-        <HomeSteps />
-        <Personas />
+        <HomeHubSteps />
+        <WhyIvoryOS />
         <FeaturedGallery />
         <Team />
-        <OpenSource />
-
-        {/* <GallerySection /> */}
+        {/* <OpenSource /> */}
         {/* <FAQ /> */}
       </main>
 

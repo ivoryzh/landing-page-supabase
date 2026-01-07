@@ -1,13 +1,13 @@
 import { ArrowRight, Download, Layers, Play } from "lucide-react";
 import Image from "next/image";
 
-export function HomeSteps() {
+export function HomeHubSteps() {
    return (
       <section id="hub" className="w-full py-12 flex flex-col items-center gap-8">
          <div className="text-center space-y-4 px-4">
-            <h2 className="text-3xl font-bold">Community Hub</h2>
+            <h2 className="text-3xl font-bold">IvoryOS Hub</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-               Discover, install, and build your automated lab.
+               Discover, install, and launch your self-driving lab.
             </p>
          </div>
          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-8 p-4 max-w-7xl mx-auto">

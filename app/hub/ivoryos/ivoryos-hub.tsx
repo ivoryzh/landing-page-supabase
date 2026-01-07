@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Cpu, Zap, Download, Wifi, Usb, CheckCircle, AlertCircle,
-  Settings, Play, ChevronRight, Search, Plus, Trash2, FileText, Code
+  Settings, Play, ChevronRight, Search, Plus, Trash2, FileText, Code,
+  Monitor, Terminal, Command
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -29,6 +30,8 @@ interface IvoryOSHubProps {
   modules: Module[];
 }
 
+type OSType = 'windows' | 'unix';
+
 export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
   const { cartItems, removeFromCart, clearCart } = useBuildCart();
   const [selectedOptimizers, setSelectedOptimizers] = useState<string[]>([]);
@@ -37,6 +40,8 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
   const [copiedMain, setCopiedMain] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [port, setPort] = useState('8000');
+  const [osType, setOsType] = useState<OSType>('windows');
+  const [activeScriptTab, setActiveScriptTab] = useState<'main' | 'setup'>('main');
 
   useEffect(() => {
     const savedOptimizers = localStorage.getItem('ivoryos-build-optimizers');
@@ -47,6 +52,12 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
         console.error("Failed to parse saved optimizers", e);
       }
     }
+
+    // Detect OS
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    if (userAgent.indexOf("win") !== -1) setOsType('windows');
+    else setOsType('unix');
+
     setIsLoaded(true);
   }, []);
 
@@ -117,7 +128,7 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
   };
 
   // --- Code Generation ---
-  const generateBashScript = () => {
+  const generateScripts = () => {
     const uniqueHardware = Array.from(new Map(cartItems.map(hw => [hw.module, hw])).values());
     const optimizerPackages = selectedOptimizers.map(id =>
       optimizerOptions.find(o => o.id === id)?.package
@@ -162,7 +173,8 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
       return `    ${varName} = ${hw.module}(${args.join(', ')})`;
     }).join('\n');
 
-    const bashScript = `
+    // Windows PowerShell Script
+    const psScript = `
 # IvoryOS Universal Setup Script
 # Generated: ${new Date().toISOString()}
 # User: ${userEmail || 'Guest'}
@@ -196,6 +208,42 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0\\ivoryos-setup.ps1"
 pause
 `;
 
+    // Unix/Mac Bash Script
+    const bashScript = `#!/bin/bash
+# IvoryOS Setup Script for Mac/Linux
+# Generated: ${new Date().toISOString()}
+
+echo "=== Setting up IvoryOS environment ==="
+
+if ! command -v uv &> /dev/null; then
+    echo "uv not found, installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
+if [ -d ".venv" ]; then
+    rm -rf .venv
+fi
+
+uv venv .venv
+source .venv/bin/activate
+
+echo "Installing dependencies..."
+uv pip install ivoryos
+${Array.from(new Set(uniqueHardware.map(hw => hw.package))).map(pkg => `uv pip install ${pkg}`).join('\n')}
+${optimizerPackages.map(pkg => `uv pip install ${pkg}`).join('\n')}
+
+# Open browser
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    open "http://localhost:${port}"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if command -v xdg-open &> /dev/null; then
+        xdg-open "http://localhost:${port}"
+    fi
+fi
+
+python3 main.py
+`;
+
     const mainScript = `#!/usr/bin/env python3
 """
 IvoryOS Main Script
@@ -216,15 +264,21 @@ if __name__ == "__main__":
     ivoryos.run(__name__, port=${port})
 `;
 
-    return { bash: bashScript, python: mainScript, bat: batScript };
+    return { ps: psScript, bash: bashScript, python: mainScript, bat: batScript };
   };
 
   const handleDownload = () => {
-    const { bash, python, bat } = generateBashScript();
+    const { ps, bash, python, bat } = generateScripts();
     const zip = new JSZip();
-    zip.file('ivoryos-setup.ps1', bash);
+
     zip.file('main.py', python);
-    zip.file('run.bat', bat);
+
+    if (osType === 'windows') {
+      zip.file('ivoryos-setup.ps1', ps);
+      zip.file('run.bat', bat);
+    } else {
+      zip.file('setup.sh', bash);
+    }
 
     zip.generateAsync({ type: 'blob' })
       .then((content) => {
@@ -233,28 +287,26 @@ if __name__ == "__main__":
       .catch((err) => console.error('Failed to generate ZIP:', err));
   };
 
-  const handleCopyMain = () => {
-    const { python } = generateBashScript();
-    navigator.clipboard.writeText(python);
+  const handleCopy = () => {
+    const { ps, bash, python } = generateScripts();
+    if (activeScriptTab === 'main') {
+      navigator.clipboard.writeText(python);
+    } else {
+      navigator.clipboard.writeText(osType === 'windows' ? ps : bash);
+    }
     setCopiedMain(true);
     setTimeout(() => setCopiedMain(false), 2000);
   };
 
   return (
-    <div className="w-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+    <div className="w-full">
       {/* Header Bar */}
-      <div className="bg-muted/50 border-b border-border px-6 py-4">
+      <div className="px-4 py-3">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-xl font-bold text-foreground">Community Hub</h1>
-              {/* <p className="text-sm text-muted-foreground">
-                {userEmail ? `Logged in as ${userEmail}` : 'No-code laboratory automation'}
-              </p> */}
+              <h1 className="text-xl font-bold text-foreground">Build your platform</h1>
             </div>
-            <a href="/hub/contribute" className="text-xs bg-primary/10 text-primary px-2 py-1 rounded hover:bg-primary/20 transition-colors">
-              + Contribute
-            </a>
           </div>
 
           <div className="flex items-center gap-2 text-xs md:text-sm overflow-x-auto pb-2 md:pb-0">
@@ -280,9 +332,9 @@ if __name__ == "__main__":
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-4">
         {step === 'hardware' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 space-y-4">
               <div className="bg-muted/30 border border-border rounded-xl p-8 text-center">
                 <h2 className="text-2xl font-bold mb-2">Build Your Setup</h2>
@@ -335,7 +387,7 @@ if __name__ == "__main__":
 
         {/* Connections Step */}
         {step === 'connect' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map(hw => (
                 <div key={hw.instanceId} className="border border-border rounded-xl p-6 bg-card shadow-sm hover:border-primary/50 transition-colors">
@@ -416,7 +468,7 @@ if __name__ == "__main__":
 
         {/* Optimizers Step (IvoryOS Config) */}
         {step === 'optimizers' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-2">
                 {optimizerOptions.map(opt => (
@@ -506,35 +558,89 @@ if __name__ == "__main__":
 
         {/* Launch Step */}
         {step === 'launch' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2">
               <div className="bg-card border border-border rounded-xl p-6 mb-6 shadow-sm">
-                <h3 className="font-bold text-foreground mb-4">Launch Configuration</h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-foreground">Launch Configuration</h3>
 
-                <div className="flex gap-4 mb-6">
-                  <button
-                    className="flex-1 p-4 border-2 border-primary bg-primary/5 rounded-lg flex flex-col items-center gap-2 transition-colors cursor-default"
-                  >
-                    <Code className="w-6 h-6 text-primary" />
-                    <span className="font-medium text-foreground">Bash/Powershell</span>
-                  </button>
+                  {/* OS Selector */}
+                  <div className="flex bg-muted/30 p-1 rounded-lg border border-border">
+                    <button
+                      onClick={() => setOsType('windows')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${osType === 'windows' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                      <Monitor className="w-3.5 h-3.5" />
+                      Windows
+                    </button>
+                    <button
+                      onClick={() => setOsType('unix')}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${osType === 'unix' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                      <Terminal className="w-3.5 h-3.5" />
+                      Mac / Linux
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="bg-muted/30 border border-border rounded-lg p-3">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-bold text-muted-foreground">Preview: main.py</span>
-                      <div className="flex gap-2">
-                        <button onClick={handleCopyMain} className="text-xs px-2 py-1 border border-input rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors">
-                          {copiedMain ? 'Copied!' : 'Copy Code'}
-                        </button>
-                      </div>
+                <div className="mb-6">
+                  {/* Tabs */}
+                  <div className="flex items-center gap-1 mb-0 border-b border-border">
+                    <button
+                      onClick={() => setActiveScriptTab('main')}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeScriptTab === 'main'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                      Main Script (main.py)
+                    </button>
+                    <button
+                      onClick={() => setActiveScriptTab('setup')}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeScriptTab === 'setup'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                      Setup Script ({osType === 'windows' ? 'ps1/bat' : 'sh'})
+                    </button>
+                  </div>
+
+                  {/* Code Area */}
+                  <div className="bg-muted/30 border border-t-0 border-border rounded-b-lg p-0">
+                    <div className="flex justify-end p-2 bg-card/50 border-b border-border">
+                      <button
+                        onClick={handleCopy}
+                        className="text-xs px-2 py-1 border border-input rounded hover:bg-accent hover:text-accent-foreground text-muted-foreground transition-colors flex items-center gap-1.5"
+                      >
+                        {copiedMain ? <CheckCircle className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+                        {copiedMain ? 'Copied!' : 'Copy Code'}
+                      </button>
                     </div>
-                    <div className="max-h-64 overflow-y-auto text-xs rounded border border-border">
-                      <SyntaxHighlighter language="python" style={oneDark} customStyle={{ margin: 0 }}>
-                        {generateBashScript().python}
+                    <div className="max-h-[400px] overflow-y-auto text-xs">
+                      <SyntaxHighlighter
+                        language={activeScriptTab === 'main' ? "python" : (osType === 'windows' ? "powershell" : "bash")}
+                        style={oneDark}
+                        customStyle={{ margin: 0, fontSize: '11px' }}
+                      >
+                        {activeScriptTab === 'main'
+                          ? generateScripts().python
+                          : (osType === 'windows' ? generateScripts().ps : generateScripts().bash)
+                        }
                       </SyntaxHighlighter>
                     </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-lg text-sm text-muted-foreground">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    {osType === 'windows' ? <Monitor className="w-5 h-5 text-primary" /> : <Terminal className="w-5 h-5 text-primary" />}
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Ready for {osType === 'windows' ? 'Windows' : 'Mac & Linux'}</p>
+                    <p className="text-xs">Download includes {osType === 'windows' ? 'PowerShell script and .bat file' : 'Bash script'} for easy setup.</p>
                   </div>
                 </div>
               </div>
@@ -549,8 +655,31 @@ if __name__ == "__main__":
                   className="w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 shadow-sm transition-all bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Download className="w-5 h-5" />
-                  Download Files
+                  Download Bundle
                 </button>
+                <div className="text-xs text-muted-foreground text-center">
+                  Includes main.py and setup script for {osType === 'windows' ? 'Windows' : 'Mac & Linux'}
+                </div>
+
+                {osType !== 'windows' && (
+                  <div className="bg-background border border-border rounded p-3 text-xs text-muted-foreground">
+                    <p className="font-semibold mb-1 text-foreground">How to run:</p>
+                    <p className="mb-2">1. Unzip the downloaded folder</p>
+                    <p className="mb-1">2. Open Terminal in that folder</p>
+                    <p>3. Run this command:</p>
+                    <code className="block bg-muted mt-1 p-1.5 rounded select-all cursor-text text-foreground bg-primary/10">
+                      chmod +x setup.sh && ./setup.sh
+                    </code>
+                  </div>
+                )}
+
+                {osType === 'windows' && (
+                  <div className="bg-background border border-border rounded p-3 text-xs text-muted-foreground">
+                    <p className="font-semibold mb-1 text-foreground">How to run:</p>
+                    <p>Double-click <span className="text-foreground font-mono">run.bat</span> to start.</p>
+                  </div>
+                )}
+
                 <button onClick={() => setStep('optimizers')} className="w-full py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-lg text-sm">
                   Back to IvoryOS Config
                 </button>

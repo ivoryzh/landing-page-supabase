@@ -24,10 +24,10 @@ export function HubSidebar({ isAdmin }: HubSidebarProps) {
     const isActive = (path: string) => pathname === path || pathname?.startsWith(path);
 
     return (
-        <aside className="w-64 flex-shrink-0 hidden md:flex flex-col gap-6 pr-6 border-r border-border/40">
+        <aside className="w-64 flex-shrink-0 hidden md:flex flex-col gap-6 pr-6 py-8 border-r border-border/40">
             <div className="flex flex-col gap-2">
                 <h3 className="text-sm font-semibold text-muted-foreground px-4 mb-2">
-                    {/* Manage */}
+                    Discover
                 </h3>
                 <Link href="/hub/devices">
                     <Button
@@ -65,17 +65,7 @@ export function HubSidebar({ isAdmin }: HubSidebarProps) {
                         Gallery
                     </Button>
                 </Link>
-                {isAdmin && (
-                    <Link href="/hub/admin/users">
-                        <Button
-                            variant={isActive("/hub/admin") ? "secondary" : "ghost"}
-                            className="w-full justify-start gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
-                        >
-                            <ShieldAlert className="w-4 h-4" />
-                            Admin
-                        </Button>
-                    </Link>
-                )}
+
             </div>
 
             <div className="flex flex-col gap-2">
@@ -107,6 +97,23 @@ export function HubSidebar({ isAdmin }: HubSidebarProps) {
                     </Button>
                 </Link>
             </div>
+
+            {isAdmin && (
+                <div className="flex flex-col gap-2">
+                    <h3 className="text-sm font-semibold text-muted-foreground px-4 mb-2">
+                        Admin
+                    </h3>
+                    <Link href="/hub/admin/users">
+                        <Button
+                            variant={isActive("/hub/admin") ? "secondary" : "ghost"}
+                            className="w-full justify-start gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                        >
+                            <ShieldAlert className="w-4 h-4" />
+                            Admin
+                        </Button>
+                    </Link>
+                </div>
+            )}
         </aside>
     );
 }

@@ -3,11 +3,12 @@ import Image from "next/image";
 export function Partners() {
     const partners = [
         { name: "UBC", src: "/assets/logos/ubc-logo.png", url: "#" },
-        { name: "Hein Lab", src: "/assets/logos/heinlab_logo.png", url: "https://heinlab.com" },
+        // { name: "Hein Lab", src: "/assets/logos/heinlab_logo.png", url: "https://heinlab.com" },
         { name: "Telescope Innovations", src: "/assets/logos/ti_logo.png", url: "https://telescopeinnovations.com" },
         { name: "Acceleration Consortium", src: "/assets/logos/ac_logo.png", url: "https://acceleration.utoronto.ca" },
         { name: "NIMS", src: "/assets/logos/nims_logo.png", url: "https://www.nims.go.jp/eng/" },
         { name: "Pfizer", src: "/assets/logos/pfizer_logo.svg", url: "https://www.pfizer.com" },
+        { name: "KPBMA", src: "/assets/logos/kpbma_logo.gif", url: "https://www.kpbma.or.kr/english" },
     ];
 
     return (
@@ -17,7 +18,7 @@ export function Partners() {
                     Trusted by or Partnered with
                 </p>
 
-                <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+                <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
                     {partners.map((partner) => (
                         <a
                             key={partner.name}
