@@ -11,7 +11,7 @@ import { useRef } from "react";
 const screenshots = [
     {
         src: "assets/screenshots/screenshot1.png",
-        title: "Factory Builder",
+        title: "Workflow Builder",
         description: "Design experiments with visual drag-and-drop interface",
     },
     {
@@ -70,7 +70,7 @@ robot = MySelfDrivingLab()
         let currentIndex = 0;
         const typingDelay = 100; // ms per char
         const startDelay = 500; // ms before start
-        const loopDelay = 8000; // ms before restarting loop
+        const loopDelay = 12200; // ms before restarting loop (4 slides * 3s + 200ms offset)
 
         // Initialize with null/undefined to satisfy linter
         let typingInterval: NodeJS.Timeout | undefined;
@@ -82,6 +82,8 @@ robot = MySelfDrivingLab()
             setTypedCode("");
             setShowInterface(false);
             setIsTyping(true);
+            setAutoPlayScreenshots(false); // Prevent background cycling
+            setCurrentScreenshot(0);       // Always start from 0
             currentIndex = 0;
 
             // Start typing
@@ -92,7 +94,10 @@ robot = MySelfDrivingLab()
                 } else {
                     clearInterval(typingInterval);
                     setIsTyping(false);
-                    setTimeout(() => setShowInterface(true), 200); // reduced delay for snappier feel
+                    setTimeout(() => {
+                        setShowInterface(true);
+                        setAutoPlayScreenshots(true); // Start cycling only when visible
+                    }, 200); // reduced delay for snappier feel
 
                     // Schedule next loop
                     loopTimeout = setTimeout(startAnimation, loopDelay);
@@ -102,7 +107,7 @@ robot = MySelfDrivingLab()
 
         if (isInView) {
             initialTimeout = setTimeout(startAnimation, startDelay);
-            setAutoPlayScreenshots(true);
+            // autoPlayScreenshots is handled by startAnimation
         } else {
             // Reset when out of view
             setTypedCode("");
@@ -140,7 +145,7 @@ robot = MySelfDrivingLab()
                     <div className="space-y-4">
                         <h2 className="text-3xl font-bold">IvoryOS Core</h2>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                            Already have control scripts? IvoryOS turns it into an autonomous experiment platform in one line.
+                            Develop in Python? IvoryOS turns it into an autonomous experiment platform in one line.
                         </p>
                     </div>
 
@@ -161,7 +166,7 @@ robot = MySelfDrivingLab()
                             href="https://github.com/ivoryos-ai/ivoryos"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-5 py-2 rounded-full bg-foreground text-background font-medium hover:opacity-90 transition-opacity"
+                            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-foreground text-background font-medium hover:opacity-90 transition-opacity"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
                             View on GitHub

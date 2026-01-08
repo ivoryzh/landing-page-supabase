@@ -33,7 +33,7 @@ export function HeroSection() {
                             Without Coding
                         </h1>
                         <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
-                            Autonomous workflows with open source orchestrator and community drivers.
+                            Science-native autonomous workflows with open source orchestrator and drivers.
                         </p>
                     </div>
 

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Cpu, FlaskConical, Quote, Sparkles, TrendingUp, GitBranch, Code2, ArrowRight } from "lucide-react";
+import { LayoutDashboard, FlaskConical, Quote, BrainCircuit, GitBranch, Code2, ArrowRight, Zap, Calendar } from "lucide-react";
 import Image from "next/image";
 
 const testimonials = [
@@ -42,66 +42,99 @@ export function WhyIvoryOS() {
                         {/* Left: Instant GUI Hero Card (Span 2) */}
                         <div className="lg:col-span-2 p-8 rounded-2xl border border-blue-500/20 bg-blue-500/5 flex flex-col gap-6 relative overflow-hidden shadow-sm h-full">
                             <div className="absolute top-0 right-0 p-4 opacity-10">
-                                <Sparkles className="w-48 h-48 text-blue-500" />
+                                <LayoutDashboard className="w-48 h-48 text-blue-500" />
                             </div>
                             <div className="space-y-6 relative z-10 flex-1">
-                                <div className="inline-flex items-center gap-2 text-blue-500 font-medium">
-                                    <Sparkles className="w-5 h-5" />
+                                {/* <div className="inline-flex items-center gap-2 text-blue-500 font-medium">
+                                    <LayoutDashboard className="w-5 h-5" />
                                     The IvoryOS Way
-                                </div>
+                                </div> */}
                                 <div className="space-y-4">
                                     <h3 className="text-3xl font-bold">Instant Web Interface</h3>
                                     <p className="text-muted-foreground leading-relaxed text-lg">
-                                        IvoryOS parses your Python protocol and instantly renders a full, interactive control interface. Developers just write logic; Scientists get a web interface immediately.
+                                        Research changes faster than software cycles. IvoryOS turns evolving Python code into an instant web interface — so scientists can test immediately while developers refactor freely.
                                     </p>
                                 </div>
                             </div>
-                            <div className="mt-auto pt-8 border-t border-blue-500/20 flex items-center gap-2 text-blue-600 dark:text-blue-400 text-base font-medium">
-                                <span className="flex items-center gap-2"><ArrowRight className="w-5 h-5" /> Ready to Run</span>
+
+                            {/* Transformation Comparison */}
+                            <div className="mt-auto pt-6 border-t border-blue-500/20 grid grid-cols-[1fr,auto,1fr] gap-4 items-center">
+                                {/* Traditional */}
+                                <div className="flex flex-col gap-1.5 opacity-60">
+                                    <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Traditional</div>
+                                    <div className="flex items-center gap-2 text-muted-foreground font-semibold">
+                                        <Calendar className="w-4 h-4" />
+                                        <span>2 Weeks</span>
+                                    </div>
+                                </div>
+
+                                {/* Arrow */}
+                                <div className="text-blue-500/40">
+                                    <ArrowRight className="w-6 h-6" />
+                                </div>
+
+                                {/* IvoryOS */}
+                                <div className="flex flex-col gap-1.5">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-600">IvoryOS</div>
+                                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-600 font-bold">
+                                        <div className="relative">
+                                            <Zap className="w-4 h-4 fill-current relative z-10" />
+                                            <div className="absolute inset-0 bg-blue-500 blur-sm opacity-50 animate-pulse" />
+                                        </div>
+                                        <span>Instant</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         {/* Right: Feature Grid (Span 3) */}
                         <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6 h-full">
-                            <div className="p-6 rounded-xl border bg-card hover:bg-muted/50 transition-colors space-y-3 flex flex-col">
-                                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500">
-                                    <Sparkles className="w-5 h-5" />
+                            <div className="p-6 rounded-xl border border-purple-500/10 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-500/50 transition-colors space-y-3 flex flex-col relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+                                    <FlaskConical className="w-20 h-20" />
                                 </div>
-                                <h4 className="font-semibold text-lg">LLM Integration</h4>
-                                <p className="text-sm text-muted-foreground flex-1">
-                                    "Chat" with your experiments and query data.
+                                <h4 className="font-semibold text-lg relative z-10 pt-2">Science-Native</h4>
+                                <p className="text-sm text-muted-foreground flex-1 relative z-10">
+                                    Designed for experiments — iteration, parameter exploration, and adaptive optimization.
                                 </p>
                             </div>
 
-                            <div className="p-6 rounded-xl border bg-card hover:bg-muted/50 transition-colors space-y-3 flex flex-col">
-                                <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
-                                    <TrendingUp className="w-5 h-5" />
+                            <div className="p-6 rounded-xl border border-blue-500/10 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-500/50 transition-colors space-y-3 flex flex-col relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+                                    <Code2 className="w-20 h-20" />
                                 </div>
-                                <h4 className="font-semibold text-lg">Bayesian Optimization Ready</h4>
-                                <p className="text-sm text-muted-foreground flex-1">
-                                    Seamless integration with Ax, BayBE and NIMO for autonomous parameter optimization loops.
+                                <h4 className="font-semibold text-lg relative z-10 pt-2">
+                                    Composible workflows
+                                </h4>
+                                <p className="text-sm text-muted-foreground flex-1 relative z-10">
+                                    Pivot faster by rebuilding workflows from reusable building blocks — no rewrites required.
                                 </p>
                             </div>
 
-                            <div className="p-6 rounded-xl border bg-card hover:bg-muted/50 transition-colors space-y-3 flex flex-col">
-                                <div className="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-500">
-                                    <GitBranch className="w-5 h-5" />
+                            <div className="p-6 rounded-xl border border-indigo-500/10 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-500/50 transition-colors space-y-3 flex flex-col relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+                                    <BrainCircuit className="w-20 h-20" />
                                 </div>
-                                <h4 className="font-semibold text-lg">Reproducibility</h4>
-                                <p className="text-sm text-muted-foreground flex-1">
+                                <h4 className="font-semibold text-lg relative z-10 pt-2">
+                                    AI Intelligence
+                                </h4>
+                                <p className="text-sm text-muted-foreground flex-1 relative z-10">
+                                    Interact with experiments in natural language — query data, guide decisions, stay in the loop.
+                                </p>
+                            </div>
+
+                            <div className="p-6 rounded-xl border border-teal-500/10 bg-teal-500/5 hover:bg-teal-500/10 hover:border-teal-500/50 transition-colors space-y-3 flex flex-col relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+                                    <GitBranch className="w-20 h-20" />
+                                </div>
+                                <h4 className="font-semibold text-lg relative z-10 pt-2">
+                                    Reproducible
+                                </h4>
+                                <p className="text-sm text-muted-foreground flex-1 relative z-10">
                                     Every action is logged. Standardized execution ensures results are repeatable.
                                 </p>
                             </div>
 
-                            <div className="p-6 rounded-xl border bg-card hover:bg-muted/50 transition-colors space-y-3 flex flex-col">
-                                <div className="w-10 h-10 rounded-lg bg-gray-500/10 flex items-center justify-center text-foreground">
-                                    <Code2 className="w-5 h-5" />
-                                </div>
-                                <h4 className="font-semibold text-lg">Open Source</h4>
-                                <p className="text-sm text-muted-foreground flex-1">
-                                    No vendor lock-in. Build on a shared foundation.
-                                </p>
-                            </div>
                         </div>
                     </div>
 
