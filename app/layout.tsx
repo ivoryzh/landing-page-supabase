@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: "IvoryOS",
     images: [
       {
-        url: "/opengraph-image.png",
+        url: `${defaultUrl}/opengraph-image.png`,
         width: 1200,
         height: 630,
         alt: "IvoryOS Landing Page",
