@@ -15,6 +15,12 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  metadataBase: new URL(defaultUrl),
+  title: "IvoryOS | Self-Driving Lab in One Line",
+  description: "Instant orchestration for your lab. Built for scientists, by scientists.",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
