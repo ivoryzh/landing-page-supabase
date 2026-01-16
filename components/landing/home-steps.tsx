@@ -1,14 +1,24 @@
 import { ArrowRight, Download, Layers, Play } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 
 export function HomeHubSteps() {
    return (
       <section id="hub" className="w-full py-12 flex flex-col items-center gap-8">
          <div className="text-center space-y-4 px-4">
-            <h2 className="text-3xl font-bold">IvoryOS Hub</h2>
+            <div className="flex items-center justify-center gap-4">
+               <h2 className="text-3xl font-bold">IvoryOS Hub</h2>
+               <Link
+                  href="/hub"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
+               >
+                  Go to Hub (beta) <ArrowRight className="w-4 h-4" />
+               </Link>
+            </div>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                Build a platform from scratch — Discover, install, and launch your self-driving lab.
             </p>
+
          </div>
          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-8 p-4 max-w-7xl mx-auto">
             {/* Step 1: Discover */}

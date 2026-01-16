@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { MissingItemSection } from "./missing-item-section";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -221,6 +222,9 @@ export default function DeviceList({ devices, isAdmin, userId }: { devices: Devi
                     </div>
                 )}
             </div>
+
+            {/* Missing Device Section */}
+            <MissingItemSection />
 
             <Dialog open={!!selectedDevice} onOpenChange={(open) => !open && setSelectedDevice(null)}>
                 <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">

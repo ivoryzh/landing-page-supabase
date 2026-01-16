@@ -33,7 +33,7 @@ export default async function GalleryPage() {
                 <div>
                     <h1 className="text-3xl font-bold">Community Gallery</h1>
                     <p className="text-muted-foreground">
-                        See what others are building with IvoryOS.
+                        See what others are building with IvoryOS. Have you built something cool? Share it with the community!
                     </p>
                 </div>
                 <Link

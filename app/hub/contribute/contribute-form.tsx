@@ -830,6 +830,7 @@ export function ContributeForm({ devices, userId }: ContributeFormProps) {
                                                     "Storage",
                                                     "Camera/Vision",
                                                     "Custom Electronics",
+                                                    "Robotic Arm",
                                                     "Other"
                                                 ].map((cat) => (
                                                     <CommandItem

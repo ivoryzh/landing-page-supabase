@@ -15,6 +15,7 @@ import {
 import { Check, Plus, Search, Info } from "lucide-react";
 import { ModuleDetailDialog } from "./module-detail-dialog";
 import { ModuleCard } from "./module-card";
+import { MissingItemSection } from "./missing-item-section";
 
 interface Module {
     id: number;
@@ -194,6 +195,9 @@ export default function ModulesClient({ modules }: { modules: Module[] }) {
                     </div>
                 )}
             </div>
+
+            {/* Missing Module Section */}
+            <MissingItemSection />
 
             <ModuleDetailDialog
                 module={selectedModule as any}
