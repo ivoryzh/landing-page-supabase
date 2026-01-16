@@ -4,8 +4,8 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
+const defaultUrl = process.env.NODE_ENV === "production"
+  ? "https://ivoryos.ai"
   : "http://localhost:3000";
 
 
@@ -19,6 +19,28 @@ export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: "IvoryOS | Self-Driving Lab in One Line",
   description: "Instant orchestration for your lab. Built for scientists, by scientists.",
+  openGraph: {
+    title: "IvoryOS | Self-Driving Lab in One Line",
+    description: "Instant orchestration for your lab. Built for scientists, by scientists.",
+    url: defaultUrl,
+    siteName: "IvoryOS",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 2536,
+        height: 1290,
+        alt: "IvoryOS - Self-Driving Lab in One Line",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "IvoryOS | Self-Driving Lab in One Line",
+    description: "Instant orchestration for your lab. Built for scientists, by scientists.",
+    images: ["/twitter-image.png"],
+  },
 };
 
 export default function RootLayout({
