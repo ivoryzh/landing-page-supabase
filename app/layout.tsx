@@ -53,8 +53,18 @@ export const metadata: Metadata = {
     ],
   },
 
+  other: {
+    "image": `${defaultUrl}/opengraph-image.png`,
+  },
   alternates: {
     canonical: defaultUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: [`${defaultUrl}/twitter-image.png`],
+    creator: "@ivoryos",
   },
   icons: {
     icon: "/favicon.ico",
