@@ -87,6 +87,16 @@ export default async function ProfilePage() {
         .eq("contributor_id", user.id)
         .order("created_at", { ascending: false });
 
+    // Fetch user's download history (only if viewing own profile)
+    // currently we only show this page for logged in user looking at their own profile?
+    // The code structure suggests [id] might be for public, but this page.tsx is /hub/profile/page.tsx which seems to be "My Profile"
+    // Let's assume this is the private "My Profile" page.
+    const { data: downloads } = await supabase
+        .from("hub_downloads")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
     return (
         <div className="flex flex-col md:flex-row gap-8 w-full">
             <ProfileSidebar user={user} profile={profile} />
@@ -95,6 +105,7 @@ export default async function ProfilePage() {
                     posts={formattedPosts}
                     modules={modules || []}
                     templates={templates || []}
+                    downloads={downloads || []}
                     user={user}
                 />
             </div>

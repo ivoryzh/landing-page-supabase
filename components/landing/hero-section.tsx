@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Youtube, Github } from "lucide-react";
 
 export function HeroSection() {
@@ -8,20 +7,24 @@ export function HeroSection() {
             <div className="w-full max-w-7xl relative mx-auto flex flex-col lg:flex-row items-center lg:items-start lg:justify-between gap-12">
 
                 {/* Background Image - Desktop */}
-                <div className="absolute top-1/2 -translate-y-1/2 right-0 w-[55%] h-[120%] hidden lg:block pointer-events-none z-0 select-none">
-                    <div className="relative w-full h-full">
-                        {/* Gradient Masks for seamless blending */}
-                        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-background z-20" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background/10 z-20" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background z-20" />
+                {/* Hero Video - Desktop */}
+                <div className="absolute top-1/2 -translate-y-1/2 -right-44 w-[70%] hidden lg:block pointer-events-none z-0 select-none">
+                    <div className="relative w-full rounded-2xl shadow-2xl border border-border/10 overflow-hidden bg-muted/5 backdrop-blur-sm perspective-1000">
+                        <video
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="w-full h-auto object-cover"
+                        >
+                            <source src="/assets/hero/hero-demo.mp4" type="video/mp4" />
+                        </video>
 
-                        <Image
-                            src="/assets/hero/hero-main.png"
-                            alt="Lab Automation Background"
-                            fill
-                            className="object-contain object-right opacity-90 dark:opacity-60 mix-blend-multiply dark:mix-blend-normal"
-                            priority
-                        />
+                        {/* Solid mask for text readability */}
+                        <div className="absolute inset-0 bg-background/20 z-10" />
+
+                        {/* Subtle overlay for depth */}
+                        <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none z-20" />
                     </div>
                 </div>
 
@@ -29,7 +32,7 @@ export function HeroSection() {
                 <div className="flex flex-col gap-8 text-left items-start z-10 relative lg:max-w-2xl lg:py-16">
                     <div className="space-y-6">
                         <h1 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70 leading-[1.1] pb-1">
-                            Automate Your Lab in Minutes, <br className="hidden lg:block" />
+                            Automate <br className="hidden lg:block" />
                             Without Coding
                         </h1>
                         <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
@@ -44,15 +47,15 @@ export function HeroSection() {
                         >
                             IvoryOS Hub (Beta)
                         </Link>
-                        <a
+                        {/* <a
                             href="https://www.youtube.com/@JasonHein/Videos"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary/50 text-secondary-foreground hover:bg-secondary/70 h-12 px-6 border border-border/40 backdrop-blur-sm hover:-translate-y-0.5 transition-transform"
                         >
                             <Youtube className="w-5 h-5" />
-                            Watch on YouTube
-                        </a>
+                            Watch
+                        </a> */}
                         <a
                             href="https://github.com/ivoryos-ai"
                             target="_blank"

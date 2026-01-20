@@ -1,4 +1,3 @@
-// @ts-nocheck
 export type Json =
     | string
     | number
@@ -19,6 +18,7 @@ export type Database = {
                 Row: {
                     category: string | null
                     connection_guide: string | null
+                    contributor_id: string | null
                     created_at: string
                     id: number
                     image_url: string | null
@@ -30,6 +30,7 @@ export type Database = {
                 Insert: {
                     category?: string | null
                     connection_guide?: string | null
+                    contributor_id?: string | null
                     created_at?: string
                     id?: number
                     image_url?: string | null
@@ -41,6 +42,7 @@ export type Database = {
                 Update: {
                     category?: string | null
                     connection_guide?: string | null
+                    contributor_id?: string | null
                     created_at?: string
                     id?: number
                     image_url?: string | null
@@ -49,7 +51,15 @@ export type Database = {
                     updated_at?: string | null
                     vendor?: string
                 }
-                Relationships: []
+                Relationships: [
+                    {
+                        foreignKeyName: "devices_contributor_id_fkey"
+                        columns: ["contributor_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
             }
             gallery_posts: {
                 Row: {
@@ -82,6 +92,41 @@ export type Database = {
                         columns: ["user_id"]
                         isOneToOne: false
                         referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
+            hub_downloads: {
+                Row: {
+                    configuration: Json | null
+                    created_at: string
+                    id: string
+                    os_type: string
+                    user_email: string | null
+                    user_id: string | null
+                }
+                Insert: {
+                    configuration?: Json | null
+                    created_at?: string
+                    id?: string
+                    os_type: string
+                    user_email?: string | null
+                    user_id?: string | null
+                }
+                Update: {
+                    configuration?: Json | null
+                    created_at?: string
+                    id?: string
+                    os_type?: string
+                    user_email?: string | null
+                    user_id?: string | null
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "hub_downloads_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "users"
                         referencedColumns: ["id"]
                     },
                 ]
@@ -232,22 +277,64 @@ export type Database = {
                     },
                 ]
             }
+            news_posts: {
+                Row: {
+                    author_id: string | null
+                    content: string
+                    created_at: string
+                    id: string
+                    image_url: string | null
+                    published: boolean | null
+                    title: string
+                    updated_at: string
+                }
+                Insert: {
+                    author_id?: string | null
+                    content: string
+                    created_at?: string
+                    id?: string
+                    image_url?: string | null
+                    published?: boolean | null
+                    title: string
+                    updated_at?: string
+                }
+                Update: {
+                    author_id?: string | null
+                    content?: string
+                    created_at?: string
+                    id?: string
+                    image_url?: string | null
+                    published?: boolean | null
+                    title?: string
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "news_posts_author_id_fkey"
+                        columns: ["author_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
             profiles: {
                 Row: {
                     avatar_url: string | null
                     full_name: string | null
                     id: string
                     lab_info: string | null
+                    role: string | null
                     updated_at: string | null
                     username: string | null
                     website: string | null
-                    role: string
                 }
                 Insert: {
                     avatar_url?: string | null
                     full_name?: string | null
                     id: string
                     lab_info?: string | null
+                    role?: string | null
                     updated_at?: string | null
                     username?: string | null
                     website?: string | null
@@ -257,6 +344,7 @@ export type Database = {
                     full_name?: string | null
                     id?: string
                     lab_info?: string | null
+                    role?: string | null
                     updated_at?: string | null
                     username?: string | null
                     website?: string | null
@@ -312,10 +400,18 @@ export type Database = {
             [_ in never]: never
         }
         Functions: {
-            [_ in never]: never
+            process_hub_download: {
+                Args: {
+                    p_os_type: string
+                    p_user_email: string
+                    p_user_id: string
+                    p_configuration: Json
+                }
+                Returns: undefined
+            }
         }
         Enums: {
-            [_ in never]: never
+            app_role: "admin" | "user"
         }
         CompositeTypes: {
             [_ in never]: never
@@ -419,9 +515,3 @@ export type CompositeTypes<
     : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
-export const Constants = {
-    public: {
-        Enums: {},
-    },
-} as const

@@ -2,17 +2,19 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Cpu, Zap, Download, Wifi, Usb, CheckCircle, AlertCircle,
+  Cpu, Zap, Wifi, Usb, CheckCircle, AlertCircle,
   Settings, Play, ChevronRight, Search, Plus, Trash2, FileText, Code,
-  Monitor, Terminal, Command
+  Monitor, Terminal, Command, ChevronDown, ChevronUp, Download, Trash, X
 } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { optimizerOptions } from './constants';
+import { generateScripts } from "@/utils/script-generator";
 
 import { Database } from "@/utils/supabase/types";
+import { createClient } from "@/utils/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,13 +29,15 @@ type Module = Database["public"]["Tables"]["modules"]["Row"] & {
 
 interface IvoryOSHubProps {
   userEmail: string | null;
+  userId?: string | null;
   modules: Module[];
 }
 
 type OSType = 'windows' | 'unix';
 
-export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
+export default function IvoryOSHub({ userEmail, userId, modules }: IvoryOSHubProps) {
   const { cartItems, removeFromCart, clearCart } = useBuildCart();
+  const supabase = createClient();
   const [selectedOptimizers, setSelectedOptimizers] = useState<string[]>([]);
   const [connections, setConnections] = useState<any>({});
   const [step, setStep] = useState('hardware');
@@ -89,7 +93,7 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
           type: item.connection[0] || 'usb',
           port: '',
           ip: '',
-          nickname: `${item.name} #${sameTypeCount}`,
+          nickname: `${item.name} #${sameTypeCount} `,
           args: initialArgs
         };
       }
@@ -128,147 +132,35 @@ export default function IvoryOSHub({ userEmail, modules }: IvoryOSHubProps) {
   };
 
   // --- Code Generation ---
-  const generateScripts = () => {
-    const uniqueHardware = Array.from(new Map(cartItems.map(hw => [hw.module, hw])).values());
-    const optimizerPackages = selectedOptimizers.map(id =>
-      optimizerOptions.find(o => o.id === id)?.package
-    ).filter(Boolean);
-
-    const hardwareImports = uniqueHardware.map(hw => {
-      return `from ${hw.path} import ${hw.module}`;
-    }).join('\n');
-
-    const hardwareInstances = cartItems.map(hw => {
-      const varName = connections[hw.instanceId]?.nickname.toLowerCase().replace(/[^a-z0-9]/g, '_') || 'device';
-      const conn = connections[hw.instanceId];
-      const args = [];
-
-      // Standard args
-      if (conn?.type === 'usb') {
-        if (conn.port) args.push(`port="${conn.port}"`);
-      } else {
-        if (conn?.ip) args.push(`ip="${conn.ip}"`);
-        if (conn?.networkPort) args.push(`port=${conn.networkPort}`);
-      }
-
-      // Custom args
-      if (hw.init_args && conn?.args) {
-        hw.init_args.forEach((argDefinition: any) => {
-          const val = conn.args[argDefinition.name];
-          if (val !== undefined && val !== "") {
-            if (argDefinition.type === 'str') {
-              args.push(`${argDefinition.name}="${val}"`);
-            } else {
-              // int, float, bool (python bool is True/False)
-              if (argDefinition.type === 'bool') {
-                args.push(`${argDefinition.name}=${val ? 'True' : 'False'}`);
-              } else {
-                args.push(`${argDefinition.name}=${val}`);
-              }
-            }
-          }
-        });
-      }
-
-      return `    ${varName} = ${hw.module}(${args.join(', ')})`;
-    }).join('\n');
-
-    // Windows PowerShell Script
-    const psScript = `
-# IvoryOS Universal Setup Script
-# Generated: ${new Date().toISOString()}
-# User: ${userEmail || 'Guest'}
-
-Write-Host "=== Setting up IvoryOS environment ==="
-
-if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-    Write-Host "uv not found, installing uv..."
-    try {
-        iwr https://astral.sh/uv/install.ps1 -UseBasicParsing | iex
-    } catch {
-        Write-Error "Failed to install uv."
-        exit 1
-    }
-}
-
-if (Test-Path ".venv") { Remove-Item -Recurse -Force ".venv" }
-uv venv .venv
-& .\\.venv\\Scripts\\Activate.ps1
-
-uv pip install ivoryos
-${Array.from(new Set(uniqueHardware.map(hw => hw.package))).map(pkg => `uv pip install ${pkg}`).join('\n')}
-${optimizerPackages.map(pkg => `uv pip install ${pkg}`).join('\n')}
-
-Start-Process "http://localhost:${port}"
-python main.py
-`;
-
-    const batScript = `@echo off
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0\\ivoryos-setup.ps1"
-pause
-`;
-
-    // Unix/Mac Bash Script
-    const bashScript = `#!/bin/bash
-# IvoryOS Setup Script for Mac/Linux
-# Generated: ${new Date().toISOString()}
-
-echo "=== Setting up IvoryOS environment ==="
-
-if ! command -v uv &> /dev/null; then
-    echo "uv not found, installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-fi
-
-if [ -d ".venv" ]; then
-    rm -rf .venv
-fi
-
-uv venv .venv
-source .venv/bin/activate
-
-echo "Installing dependencies..."
-uv pip install ivoryos
-${Array.from(new Set(uniqueHardware.map(hw => hw.package))).map(pkg => `uv pip install ${pkg}`).join('\n')}
-${optimizerPackages.map(pkg => `uv pip install ${pkg}`).join('\n')}
-
-# Open browser
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    open "http://localhost:${port}"
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if command -v xdg-open &> /dev/null; then
-        xdg-open "http://localhost:${port}"
-    fi
-fi
-
-python3 main.py
-`;
-
-    const mainScript = `#!/usr/bin/env python3
-"""
-IvoryOS Main Script
-Generated: ${new Date().toISOString()}
-"""
-
-${hardwareImports}
-import ivoryos
-
-# Initialize hardware
-try:
-${hardwareInstances || '    pass'}
-except Exception as e:
-    print(f"Failed to initialize hardware: {e}. Connect them in the web interface or try again.")
-    
-# Start IvoryOS web interface
-if __name__ == "__main__":
-    ivoryos.run(__name__, port=${port})
-`;
-
-    return { ps: psScript, bash: bashScript, python: mainScript, bat: batScript };
-  };
-
   const handleDownload = () => {
-    const { ps, bash, python, bat } = generateScripts();
+    // Generate scripts using the shared utility
+    const { ps, bash, python, bat } = generateScripts(cartItems, selectedOptimizers, connections, port, userEmail);
+
+    // Prepare configuration for tracking
+    const configuration = {
+      cartItems: cartItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        module: item.module,
+        icon: item.icon
+      })),
+      selectedOptimizers,
+      // Save connection settings (IPs, ports, etc) so we can recreate the build later
+      connections,
+      port,
+      osType
+    };
+
+    // Track download start with detailed configuration
+    supabase.rpc('process_hub_download', {
+      p_os_type: osType,
+      p_user_email: userEmail || null,
+      p_user_id: userId || null,
+      p_configuration: configuration
+    }).then(({ error }) => {
+      if (error) console.error("Error tracking download:", error);
+    });
+
     const zip = new JSZip();
 
     zip.file('main.py', python);
@@ -288,7 +180,7 @@ if __name__ == "__main__":
   };
 
   const handleCopy = () => {
-    const { ps, bash, python } = generateScripts();
+    const { ps, bash, python } = generateScripts(cartItems, selectedOptimizers, connections, port, userEmail);
     if (activeScriptTab === 'main') {
       navigator.clipboard.writeText(python);
     } else {
@@ -320,7 +212,7 @@ if __name__ == "__main__":
                 <button
                   onClick={() => setStep(s.id)}
                   className={`flex items-center gap-2 px-3 py-1 rounded-full whitespace-nowrap transition-colors ${step === s.id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                    } `}
                 >
                   <s.icon className="w-4 h-4" />
                   {s.label}
@@ -399,6 +291,18 @@ if __name__ == "__main__":
                       onChange={(e) => updateConnection(hw.instanceId, 'nickname', e.target.value)}
                       className="font-bold text-foreground text-lg bg-transparent border-b-2 border-transparent hover:border-primary/50 focus:border-primary focus:outline-none flex-1"
                     />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          const { ps } = generateScripts(cartItems, selectedOptimizers, connections, port, userEmail);
+                          navigator.clipboard.writeText(ps);
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-md text-gray-400 hover:text-white transition-colors"
+                        title="Copy PowerShell Script"
+                      >
+                        <Terminal size={16} />
+                      </button>
+                    </div>
                     <div className="flex items-center gap-2">
                       {hw.connection.map((conn: string) => (
                         <span
@@ -477,7 +381,7 @@ if __name__ == "__main__":
                     className={`p-4 border rounded-xl transition-all bg-card ${selectedOptimizers.includes(opt.id)
                       ? 'border-primary shadow-md'
                       : 'border-border hover:border-primary/50 hover:shadow-md'
-                      }`}
+                      } `}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-2xl">{opt.icon}</span>
@@ -485,7 +389,7 @@ if __name__ == "__main__":
                         onClick={() => setSelectedOptimizers(prev =>
                           prev.includes(opt.id) ? prev.filter(id => id !== opt.id) : [...prev, opt.id]
                         )}
-                        className={`text-sm font-medium flex items-center gap-1 ${selectedOptimizers.includes(opt.id) ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                        className={`text-sm font-medium flex items-center gap-1 ${selectedOptimizers.includes(opt.id) ? 'text-primary' : 'text-muted-foreground hover:text-primary'} `}
                       >
                         {selectedOptimizers.includes(opt.id) ? <CheckCircle className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                         {selectedOptimizers.includes(opt.id) ? 'Added' : 'Add'}
@@ -569,7 +473,7 @@ if __name__ == "__main__":
                     <button
                       onClick={() => setOsType('windows')}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${osType === 'windows' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        } `}
                     >
                       <Monitor className="w-3.5 h-3.5" />
                       Windows
@@ -577,7 +481,7 @@ if __name__ == "__main__":
                     <button
                       onClick={() => setOsType('unix')}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${osType === 'unix' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-                        }`}
+                        } `}
                     >
                       <Terminal className="w-3.5 h-3.5" />
                       Mac / Linux
@@ -593,7 +497,7 @@ if __name__ == "__main__":
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeScriptTab === 'main'
                         ? 'border-primary text-primary'
                         : 'border-transparent text-muted-foreground hover:text-foreground'
-                        }`}
+                        } `}
                     >
                       Main Script (main.py)
                     </button>
@@ -602,7 +506,7 @@ if __name__ == "__main__":
                       className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeScriptTab === 'setup'
                         ? 'border-primary text-primary'
                         : 'border-transparent text-muted-foreground hover:text-foreground'
-                        }`}
+                        } `}
                     >
                       Setup Script ({osType === 'windows' ? 'ps1/bat' : 'sh'})
                     </button>
@@ -626,8 +530,8 @@ if __name__ == "__main__":
                         customStyle={{ margin: 0, fontSize: '11px' }}
                       >
                         {activeScriptTab === 'main'
-                          ? generateScripts().python
-                          : (osType === 'windows' ? generateScripts().ps : generateScripts().bash)
+                          ? generateScripts(cartItems, selectedOptimizers, connections, port, userEmail).python
+                          : (osType === 'windows' ? generateScripts(cartItems, selectedOptimizers, connections, port, userEmail).ps : generateScripts(cartItems, selectedOptimizers, connections, port, userEmail).bash)
                         }
                       </SyntaxHighlighter>
                     </div>

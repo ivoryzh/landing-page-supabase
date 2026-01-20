@@ -11,6 +11,7 @@ import { TemplateCard } from "@/components/hub/template-card";
 import { User } from "@supabase/supabase-js";
 import { useBuildCart } from "@/context/build-cart-context";
 import { ModuleDetailDialog } from "@/components/hub/module-detail-dialog";
+import { DownloadHistoryList } from "./download-history-list";
 
 type GalleryPost = Database["public"]["Tables"]["gallery_posts"]["Row"] & {
     profiles: Database["public"]["Tables"]["profiles"]["Row"] | null;
@@ -27,10 +28,11 @@ interface ProfileWorksProps {
     posts: GalleryPost[];
     modules: Module[];
     templates: Template[];
+    downloads: Database["public"]["Tables"]["hub_downloads"]["Row"][];
     user: User | null;
 }
 
-export function ProfileWorks({ posts, modules, templates, user }: ProfileWorksProps) {
+export function ProfileWorks({ posts, modules, templates, downloads, user }: ProfileWorksProps) {
     const [selectedPost, setSelectedPost] = useState<GalleryPost | null>(null);
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false);
@@ -63,7 +65,7 @@ export function ProfileWorks({ posts, modules, templates, user }: ProfileWorksPr
         setIsModuleDialogOpen(true);
     };
 
-    const [activeTab, setActiveTab] = useState<"gallery" | "modules" | "templates">("gallery");
+    const [activeTab, setActiveTab] = useState<"gallery" | "modules" | "templates" | "downloads">("gallery");
 
     return (
         <div className="space-y-6">
@@ -96,6 +98,15 @@ export function ProfileWorks({ posts, modules, templates, user }: ProfileWorksPr
                         )}
                     >
                         Templates ({templates.length})
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("downloads")}
+                        className={cn(
+                            "px-3 py-1 text-sm font-medium rounded-md transition-all",
+                            activeTab === "downloads" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        Downloads ({downloads?.length || 0})
                     </button>
                 </div>
             </div>
@@ -163,6 +174,12 @@ export function ProfileWorks({ posts, modules, templates, user }: ProfileWorksPr
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {activeTab === "downloads" && (
+                <div className="mt-0">
+                    <DownloadHistoryList downloads={downloads || []} />
                 </div>
             )}
 

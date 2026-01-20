@@ -44,6 +44,7 @@ interface Module {
         vendor: string;
         category: string | null;
     } | null;
+    download_count?: number | null;
 }
 
 export default function ModulesClient({ modules }: { modules: Module[] }) {

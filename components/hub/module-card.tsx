@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ThumbsUp, Pencil } from "lucide-react";
+import { Plus, ThumbsUp, Pencil, Download } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
@@ -92,17 +92,23 @@ export function ModuleCard({ module, onOpenDetails, onAddToCart }: ModuleCardPro
                     <span className="text-2xl shrink-0">{module.icon_emoji || "📦"}</span>
                     <h3 className="font-bold text-base truncate pr-2 group-hover:text-primary transition-colors">{module.name}</h3>
                 </div>
-                {module.is_tested_with_ivoryos && (
-                    <span className="text-[10px] bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full font-medium shrink-0">
-                        Verified
+                <div className="flex flex-col items-end gap-1">
+                    {module.is_tested_with_ivoryos && (
+                        <span className="text-[10px] bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full font-medium shrink-0">
+                            Verified
+                        </span>
+                    )}
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full" title="Downloads">
+                        <Download className="w-2.5 h-2.5" /> {module.download_count || 0}
                     </span>
-                )}
+                </div>
             </div>
 
             <div className="flex-1 flex flex-col gap-3 pl-[calc(2rem+0.75rem)]">
                 <p className="text-xs text-muted-foreground line-clamp-1">
                     {module.devices?.name ? `For ${module.devices.name}` : "Device Agnostic"}
                 </p>
+                {/* Download count removed from here */}
             </div>
 
             <div className="mt-4 flex gap-2 pl-[calc(2rem+0.75rem)]">

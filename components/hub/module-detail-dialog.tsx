@@ -167,6 +167,10 @@ export function ModuleDetailDialog({ module, open, onOpenChange }: ModuleDetailD
                                 <span className="text-muted-foreground">Published:</span>
                                 <p>{new Date(module.created_at).toLocaleDateString()}</p>
                             </div>
+                            <div className="space-y-1">
+                                <span className="text-muted-foreground">Downloads:</span>
+                                <p>{module.download_count || 0}</p>
+                            </div>
                             {module.description && (
                                 <div className="col-span-2 space-y-1">
                                     <span className="text-muted-foreground">Description:</span>
