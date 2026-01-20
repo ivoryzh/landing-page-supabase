@@ -90,8 +90,7 @@ export default async function PublicProfilePage({ params }: { params: { id: stri
                     posts={formattedPosts}
                     modules={modules || []}
                     templates={templates || []}
-                    user={user}
-                />
+                    user={user} downloads={[]} />
             </div>
         </div>
     );
