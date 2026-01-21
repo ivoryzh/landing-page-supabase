@@ -8,7 +8,7 @@ export function HeroSection() {
 
                 {/* Background Image - Desktop */}
                 {/* Hero Video - Desktop */}
-                <div className="absolute top-1/2 -translate-y-1/2 -right-44 w-[70%] hidden lg:block pointer-events-none z-0 select-none">
+                <div className="relative w-full lg:absolute lg:top-1/2 lg:-translate-y-1/2 lg:-right-44 lg:w-[70%] block pointer-events-none z-0 select-none order-last lg:order-none mt-8 lg:mt-0">
                     <div className="relative w-full rounded-2xl shadow-2xl border border-border/10 overflow-hidden bg-muted/5 backdrop-blur-sm perspective-1000">
                         <video
                             autoPlay

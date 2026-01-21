@@ -34,7 +34,7 @@ export default async function NewsPage() {
         .order("created_at", { ascending: false });
 
     return (
-        <div className="space-y-8 container mx-auto py-8 max-w-7xl">
+        <div className="space-y-8 container mx-auto py-8 max-w-7xl px-4">
             <div className="flex justify-between items-center border-b pb-6">
                 <div className="space-y-1">
                     <h1 className="text-3xl font-bold tracking-tight">News & Updates</h1>
