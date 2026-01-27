@@ -92,6 +92,12 @@ export default function DeviceList({ devices, isAdmin, userId }: { devices: Devi
     }, [devices, searchQuery, selectedVendor, selectedCategory]);
 
     const handleAddToBuild = (module: Module) => {
+        if (!userId) {
+            const currentPath = window.location.pathname;
+            router.push(`/auth/login?next=${currentPath}`);
+            return;
+        }
+
         addToCart({
             id: module.id.toString(),
             name: module.name,

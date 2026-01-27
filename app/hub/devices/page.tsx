@@ -9,9 +9,9 @@ export default async function DevicesPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        redirect("/auth/login");
-    }
+    // if (!user) {
+    //     redirect("/auth/login");
+    // }
 
     const { data: devices, error } = await supabase
         .from("devices")

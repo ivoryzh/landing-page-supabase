@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Linkedin, Youtube } from "lucide-react";
+import { Github, Linkedin, Youtube, Slack } from "lucide-react";
 import { Copyright } from "@/components/copyright";
 
 export function Footer() {
@@ -41,6 +41,15 @@ export function Footer() {
                         >
                             <Github className="w-7 h-7" />
                             <span className="sr-only">GitHub</span>
+                        </Link>
+                        <Link
+                            href="https://join.slack.com/t/ivoryos/shared_invite/zt-3mmwcu5f7-XIG42Ufyp~v450Fob0mj3A"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-foreground transition-colors"
+                        >
+                            <Slack className="w-7 h-7" />
+                            <span className="sr-only">Slack</span>
                         </Link>
                         <Link
                             href="https://discord.gg/3KdjhUmsYA"

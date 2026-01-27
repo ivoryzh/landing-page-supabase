@@ -47,7 +47,7 @@ interface Module {
     download_count?: number | null;
 }
 
-export default function ModulesClient({ modules }: { modules: Module[] }) {
+export default function ModulesClient({ modules, userId }: { modules: Module[], userId?: string }) {
     const { addToCart, cartItems } = useBuildCart();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedVendor, setSelectedVendor] = useState<string>("all");
@@ -95,6 +95,12 @@ export default function ModulesClient({ modules }: { modules: Module[] }) {
 
     const handleAddToCart = (e: React.MouseEvent, module: Module) => {
         e.stopPropagation();
+
+        if (!userId) {
+            window.location.href = `/auth/login?next=${window.location.pathname}`;
+            return;
+        }
+
         addToCart({
             id: module.id.toString(),
             name: module.name,

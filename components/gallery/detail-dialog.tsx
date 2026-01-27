@@ -78,7 +78,12 @@ export function DetailDialog({
     };
 
     const handleLike = async () => {
-        if (!user || !post || loadingLike) return;
+        if (!user) {
+            window.location.href = `/auth/login?next=/hub/gallery`;
+            return;
+        }
+
+        if (!post || loadingLike) return;
         setLoadingLike(true);
 
         try {

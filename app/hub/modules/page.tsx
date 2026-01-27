@@ -9,9 +9,9 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        redirect("/auth/login");
-    }
+    // if (!user) {
+    //     redirect("/auth/login");
+    // }
 
     const { device_id } = await searchParams;
 
@@ -21,9 +21,15 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
             *,
             devices (*),
             profiles:contributor_id (*)
-        `)
-        .or(`is_unlisted.eq.false,contributor_id.eq.${user.id}`)
-        .order("created_at", { ascending: false });
+        `);
+
+    if (user) {
+        query = query.or(`is_unlisted.eq.false,contributor_id.eq.${user.id}`);
+    } else {
+        query = query.eq("is_unlisted", false);
+    }
+
+    query = query.order("created_at", { ascending: false });
 
     if (device_id) {
         query = query.eq("device_id", device_id);
@@ -37,7 +43,7 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
     }
 
     return (
-        <ModulesClient modules={modules as any} />
+        <ModulesClient modules={modules as any} userId={user?.id} />
     );
 }
 

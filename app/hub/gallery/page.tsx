@@ -9,9 +9,9 @@ export default async function GalleryPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        redirect("/auth/login");
-    }
+    // if (!user) {
+    //     redirect("/auth/login");
+    // }
 
     // Fetch all gallery posts
     const { data: posts, error } = await supabase
@@ -44,7 +44,7 @@ export default async function GalleryPage() {
                 </Link>
             </div>
 
-            <GalleryGrid posts={posts || []} currentUser={user} />
+            <GalleryGrid posts={posts || []} currentUser={user || null} />
 
             {posts?.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">

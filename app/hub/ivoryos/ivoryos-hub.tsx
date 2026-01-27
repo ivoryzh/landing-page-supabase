@@ -133,6 +133,11 @@ export default function IvoryOSHub({ userEmail, userId, modules }: IvoryOSHubPro
 
   // --- Code Generation ---
   const handleDownload = () => {
+    if (!userId) {
+      window.location.href = `/auth/login?next=${window.location.pathname}`;
+      return;
+    }
+
     // Generate scripts using the shared utility
     const { ps, bash, python, bat } = generateScripts(cartItems, selectedOptimizers, connections, port, userEmail);
 
