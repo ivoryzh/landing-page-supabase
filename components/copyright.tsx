@@ -19,10 +19,10 @@ export function Copyright() {
     // we should use mounted state.
 
     if (!year) {
-        return <p>© IvoryOS. All rights reserved.</p>;
+        return <p>© IvoryOS Technologies Inc. All rights reserved.</p>;
     }
 
     return (
-        <p>© {year} IvoryOS. All rights reserved.</p>
+        <p>© {year} IvoryOS Technologies Inc. All rights reserved.</p>
     );
 }

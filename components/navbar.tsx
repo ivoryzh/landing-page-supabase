@@ -30,7 +30,7 @@ export function Navbar({ authButton }: NavbarProps) {
         {
             label: "Stories",
             children: [
-                { href: "/#why-ivoryos", label: "Why IvoryOS" },
+                { href: "/#faq", label: "Why IvoryOS" },
                 { href: "/#gallery", label: "Gallery" },
                 { href: "/#team", label: "Team" },
                 // { href: "/#open-source", label: "Open Source" },

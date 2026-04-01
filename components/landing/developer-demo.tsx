@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Play, BookOpen } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useRef } from "react";
+import { WhyIvoryOS } from "./why-ivoryos";
 
 const screenshots = [
     {
@@ -291,9 +292,11 @@ robot = MySelfDrivingLab()
                             </div>
                         </div>
                     </motion.div>
-                </div>
             </div>
+            </div>
+            
+            <WhyIvoryOS />
+            
         </section>
-
     );
 }

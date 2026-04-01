@@ -3,7 +3,6 @@ import { Copyright } from "@/components/copyright";
 import { HeroSection } from "@/components/landing/hero-section";
 import { HomeHubSteps } from "@/components/landing/home-steps";
 import { DeveloperDemo } from "@/components/landing/developer-demo";
-import { WhyIvoryOS } from "@/components/landing/why-ivoryos";
 import { Community } from "@/components/landing/community";
 import { Partners } from "@/components/landing/partners";
 import { FeaturedGallery } from "@/components/landing/featured-gallery";
@@ -27,11 +26,10 @@ export default function Home() {
         <Partners />
         <DeveloperDemo />
         <HomeHubSteps />
-        <WhyIvoryOS />
+        <FAQ />
         <FeaturedGallery />
         <Team />
         {/* <OpenSource /> */}
-        {/* <FAQ /> */}
       </main>
 
       <Footer />

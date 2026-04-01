@@ -4,7 +4,7 @@ export function Team() {
     const team = [
         {
             name: "Ivory Zhang",
-            role: "Lead Developer",
+            role: "Founder & CEO",
         },
         {
             name: "Jason Hein",

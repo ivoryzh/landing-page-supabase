@@ -24,17 +24,17 @@ const testimonials = [
 
 export function WhyIvoryOS() {
     return (
-        <section id="why-ivoryos" className="w-full py-20 bg-muted/10 border-y border-border/40">
+        <div className="w-full pt-16 mt-8 border-t border-border/20">
             <div className="max-w-7xl mx-auto px-4 flex flex-col gap-20">
 
                 {/* 1. Header & GUI Spotlight */}
                 <div className="flex flex-col gap-12">
-                    <div className="text-center space-y-4">
+                    {/* <div className="text-center space-y-4">
                         <h2 className="text-3xl lg:text-4xl font-bold">Why IvoryOS?</h2>
                         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                             The bridge between complex automation and scientific discovery.
                         </p>
-                    </div>
+                    </div> */}
 
                     {/* Main Content: Instant GUI (Left) + Feature Grid (Right) */}
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-8 items-stretch">
@@ -139,41 +139,41 @@ export function WhyIvoryOS() {
                     </div>
 
 
-                    <div className="space-y-12">
-                        <div className="text-center space-y-4">
-                            {/* <h2 className="text-3xl font-bold">Empowering Every Role</h2> */}
-                            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                                Designed to accelerate the entire R&D team.
-                            </p>
-                        </div>
+                    {/* <div className="space-y-12"> */}
+                    {/* <div className="text-center space-y-4">
+                        <h2 className="text-3xl font-bold">Empowering Every Role</h2>
+                        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                            Designed to accelerate the entire R&D team.
+                        </p>
+                    </div> */}
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            {testimonials.map((item, idx) => (
-                                <div key={idx} className="flex flex-col gap-6 p-8 rounded-xl border bg-card text-card-foreground shadow-sm relative overflow-hidden">
-                                    <div className={`absolute top-0 right-0 w-24 h-24 ${item.bgColor} rounded-bl-full opacity-50`} />
+                    {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {testimonials.map((item, idx) => (
+                            <div key={idx} className="flex flex-col gap-6 p-8 rounded-xl border bg-card text-card-foreground shadow-sm relative overflow-hidden">
+                                <div className={`absolute top-0 right-0 w-24 h-24 ${item.bgColor} rounded-bl-full opacity-50`} />
 
-                                    <div className="flex items-center gap-4 relative z-10">
-                                        <div className="relative w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                                            <Image
-                                                src={item.avatar}
-                                                alt={item.title}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        </div>
-                                        <h4 className="font-semibold text-lg">{item.title}</h4>
+                                <div className="flex items-center gap-4 relative z-10">
+                                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                                        <Image
+                                            src={item.avatar}
+                                            alt={item.title}
+                                            fill
+                                            className="object-cover"
+                                        />
                                     </div>
-
-                                    <p className="text-muted-foreground leading-relaxed relative z-10">
-                                        {item.description}
-                                    </p>
+                                    <h4 className="font-semibold text-lg">{item.title}</h4>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+
+                                <p className="text-muted-foreground leading-relaxed relative z-10">
+                                    {item.description}
+                                </p>
+                            </div>
+                        ))}
+                    </div> */}
+                    {/* </div> */}
                 </div>
             </div>
-        </section>
+        </div>
     );
 }
 
