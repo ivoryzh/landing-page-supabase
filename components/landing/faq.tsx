@@ -12,7 +12,7 @@ const faqs = [
     {
         question: "Why is flexibility critical in R&D automation?",
         answer: "R&D is unpredictable. Workflows constantly change, and trial-and-error is essential. Scientists need to modify workflows quickly and add new instruments or steps easily. Rigid systems slow down discovery — flexibility isn’t optional, it’s essential.",
-        image: "/faq/2-flexiblity.png"
+        image: "/faq/2-flexibility.png"
     },
     {
         question: "Why is coordinating multiple instruments so hard?",
@@ -21,7 +21,7 @@ const faqs = [
     },
     {
         question: "Why is programming still the best solution today?",
-        answer: "Programming is the most flexible, powerful, and scalable way to automate scientific research. However, most scientists are not trained to code, and even if they were, it would be a waste of their time and talent.",
+        answer: "Programming remains the most flexible, powerful, and scalable way to automate scientific research. However, most scientists are not trained to code, and even if they were, it would be a waste of their time and talent.",
         image: "/faq/4-why-programming.png"
     },
     {
@@ -46,7 +46,7 @@ const faqs = [
     },
     {
         question: "Can I use IvoryOS for beyond science, like on coffee-making robots?",
-        answer: "Technically yes — but it’s overkill. IvoryOS shines when workflows are dynamic, iterative, and decision-driven. But if you want to autonomous optimize the best ingredient and brew methods combo, let’s do it.",
+        answer: "Technically yes — but it’s overkill. IvoryOS shines when workflows are dynamic, iterative, and decision-driven. If your goal is to autonomously optimize the best ingredient and brewing method combination, that’s exactly what we can do.",
         image: "/faq/9-coffee-2.png"
     }
 ];
